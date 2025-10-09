@@ -83,3 +83,66 @@ LINE 1: ... device, browser, operating_system, nps_score_bv, "Tu califi...
 2025-09-18 23:49:06,281 - INFO - Tiempo total: 0:01:32.616665
 2025-09-18 23:49:06,281 - INFO - ==================================================
 2025-09-18 23:49:06,281 - INFO - PIPELINE VALIDADO - Listo para archivos grandes
+2025-10-06 14:37:37,603 - INFO - Conexión PostgreSQL exitosa
+2025-10-06 14:37:37,809 - INFO - Engine conectado: PostgreSQL 17.6 on x86_64-windows, compiled by msv...
+2025-10-06 14:37:37,832 - INFO - Tablas creadas/verificadas exitosamente
+2025-10-06 14:37:37,832 - INFO - Insertando Banco Móvil desde: muestras_limpias\1 Base Agosto_BM_2025_muestra_281230_LIMPIO.xlsx
+2025-10-06 14:38:27,866 - INFO - Columnas a insertar BM: ['timestamp', 'answer_date', 'answers', 'channel', 'cust_ident_num', 'cust_ident_type', 'feedback_type', 'record_id', 'nps_original', 'nps_recomendacion_score', 'nps_recomendacion_motivo', 'csat_satisfaccion_score', 'csat_satisfaccion_motivo', 'nps_score', 'nps_category', 'cleaned_date', 'file_type', 'month_year', 'source_file']
+2025-10-06 14:39:42,253 - INFO - ✓ Banco Móvil insertado: 281230 registros de 281230
+2025-10-06 14:39:42,304 - INFO - Insertando Banco Móvil desde: muestras_limpias\1 Base Julio_BM_2025_muestra_14_LIMPIO.xlsx
+2025-10-06 14:39:42,322 - INFO - Columnas a insertar BM: ['feedback_type', 'nps_original', 'cleaned_date', 'file_type', 'month_year', 'source_file']
+2025-10-06 14:39:42,326 - INFO - ✓ Banco Móvil insertado: 14 registros de 14
+2025-10-06 14:39:42,326 - INFO - Insertando Banco Móvil desde: muestras_limpias\1 Base Junio_BM_2025_muestra_195455_LIMPIO.xlsx
+2025-10-06 14:40:14,959 - INFO - Columnas a insertar BM: ['timestamp', 'answer_date', 'answers', 'channel', 'cust_ident_num', 'cust_ident_type', 'feedback_type', 'record_id', 'nps_recomendacion_score', 'nps_recomendacion_motivo', 'csat_satisfaccion_score', 'csat_satisfaccion_motivo', 'nps_score', 'nps_category', 'cleaned_date', 'file_type', 'month_year', 'source_file']
+2025-10-06 14:41:04,074 - INFO - ✓ Banco Móvil insertado: 195455 registros de 195455
+2025-10-06 14:41:04,108 - INFO - Insertando Banco Móvil desde: muestras_limpias\agosto_bm_2025_muestra_281230_LIMPIO.xlsx
+2025-10-06 14:41:52,586 - INFO - Conexión PostgreSQL exitosa
+2025-10-06 14:41:52,650 - INFO - Engine conectado: PostgreSQL 17.6 on x86_64-windows, compiled by msv...
+2025-10-06 14:41:52,653 - INFO - Tablas creadas/verificadas exitosamente
+2025-10-06 14:41:52,653 - INFO - Insertando Banco Móvil desde: muestras_limpias\1 Base Agosto_BM_2025_muestra_281230_LIMPIO.xlsx
+2025-10-06 14:42:40,323 - INFO - Columnas a insertar BM: ['timestamp', 'answer_date', 'answers', 'channel', 'cust_ident_num', 'cust_ident_type', 'feedback_type', 'record_id', 'nps_original', 'nps_recomendacion_score', 'nps_recomendacion_motivo', 'csat_satisfaccion_score', 'csat_satisfaccion_motivo', 'nps_score', 'nps_category', 'cleaned_date', 'file_type', 'month_year', 'source_file']
+2025-10-06 14:43:53,294 - INFO - ✓ Banco Móvil insertado: 281230 registros de 281230
+2025-10-06 14:43:53,345 - INFO - Insertando Banco Móvil desde: muestras_limpias\1 Base Julio_BM_2025_muestra_14_LIMPIO.xlsx
+2025-10-06 14:43:53,354 - INFO - Columnas a insertar BM: ['feedback_type', 'nps_original', 'cleaned_date', 'file_type', 'month_year', 'source_file']
+2025-10-06 14:43:53,358 - INFO - ✓ Banco Móvil insertado: 14 registros de 14
+2025-10-06 14:43:53,358 - INFO - Insertando Banco Móvil desde: muestras_limpias\1 Base Junio_BM_2025_muestra_195455_LIMPIO.xlsx
+2025-10-06 14:44:26,054 - INFO - Columnas a insertar BM: ['timestamp', 'answer_date', 'answers', 'channel', 'cust_ident_num', 'cust_ident_type', 'feedback_type', 'record_id', 'nps_recomendacion_score', 'nps_recomendacion_motivo', 'csat_satisfaccion_score', 'csat_satisfaccion_motivo', 'nps_score', 'nps_category', 'cleaned_date', 'file_type', 'month_year', 'source_file']
+2025-10-06 14:45:13,758 - INFO - ✓ Banco Móvil insertado: 195455 registros de 195455
+2025-10-06 14:45:13,794 - INFO - Insertando Banco Móvil desde: muestras_limpias\agosto_bm_2025_muestra_281230_LIMPIO.xlsx
+2025-10-06 14:46:01,741 - INFO - Columnas a insertar BM: ['timestamp', 'answer_date', 'answers', 'channel', 'cust_ident_num', 'cust_ident_type', 'feedback_type', 'record_id', 'nps_original', 'nps_recomendacion_score', 'nps_recomendacion_motivo', 'csat_satisfaccion_score', 'csat_satisfaccion_motivo', 'nps_score', 'nps_category', 'cleaned_date', 'file_type', 'month_year', 'source_file']
+2025-10-06 14:47:15,615 - INFO - ✓ Banco Móvil insertado: 281230 registros de 281230
+2025-10-06 14:47:15,665 - INFO - Insertando Banco Virtual desde: muestras_limpias\1 Base Agosto_BV_2025_muestra_1904_LIMPIO.xlsx
+2025-10-06 14:47:16,006 - INFO - Columnas a insertar BV: ['date_submitted_original', 'date_submitted', 'country', 'source_url', 'device', 'browser', 'operating_system', 'nps_score_bv', 'month_year', 'nps_score', 'nps_category', 'cleaned_date', 'file_type', 'calificacion_acerca', 'motivo_calificacion', 'tags_recomendacion', 'tags_calificacion', 'tags_motivo', 'sentiment_motivo', 'source_file']
+2025-10-06 14:47:16,535 - INFO - ✓ Banco Virtual insertado: 1904 registros de 1904
+2025-10-06 14:47:16,536 - INFO - Insertando Banco Virtual desde: muestras_limpias\1 Base julio_BV_2025_muestra_14_LIMPIO.xlsx
+2025-10-06 14:47:16,553 - INFO - Columnas a insertar BV: ['cleaned_date', 'file_type', 'source_file']
+2025-10-06 14:47:16,557 - INFO - ✓ Banco Virtual insertado: 14 registros de 14
+2025-10-06 14:47:16,557 - INFO - Insertando Banco Virtual desde: muestras_limpias\1 Base Junio_BV_2025_muestra_14_LIMPIO.xlsx
+2025-10-06 14:47:16,573 - INFO - Columnas a insertar BV: ['cleaned_date', 'file_type', 'source_file']
+2025-10-06 14:47:16,577 - INFO - ✓ Banco Virtual insertado: 14 registros de 14
+2025-10-06 14:47:16,577 - INFO - Insertando Banco Virtual desde: muestras_limpias\1 Base Junio_BV_2025_muestra_1891_LIMPIO.xlsx
+2025-10-06 14:47:16,899 - INFO - Columnas a insertar BV: ['date_submitted_original', 'date_submitted', 'country', 'source_url', 'device', 'browser', 'operating_system', 'nps_score_bv', 'month_year', 'nps_score', 'nps_category', 'cleaned_date', 'file_type', 'calificacion_acerca', 'motivo_calificacion', 'tags_recomendacion', 'tags_calificacion', 'tags_motivo', 'sentiment_motivo', 'source_file']
+2025-10-06 14:47:17,372 - INFO - ✓ Banco Virtual insertado: 1891 registros de 1891
+2025-10-06 14:47:17,372 - INFO - Insertando Banco Virtual desde: muestras_limpias\agosto_bv_2025_muestra_1904_LIMPIO.xlsx
+2025-10-06 14:47:17,693 - INFO - Columnas a insertar BV: ['date_submitted_original', 'date_submitted', 'country', 'source_url', 'device', 'browser', 'operating_system', 'nps_score_bv', 'month_year', 'nps_score', 'nps_category', 'cleaned_date', 'file_type', 'calificacion_acerca', 'motivo_calificacion', 'tags_recomendacion', 'tags_calificacion', 'tags_motivo', 'sentiment_motivo', 'source_file']
+2025-10-06 14:47:18,167 - INFO - ✓ Banco Virtual insertado: 1904 registros de 1904
+2025-10-06 14:47:18,336 - INFO - Verificación - BM: 1234628 registros, BV: 5727 registros
+2025-10-06 14:47:18,336 - INFO - Muestra BM:
+2025-10-06 14:47:18,337 - INFO -   NPS: 6.0, Categoría: Detractor, Recomendación: 6.0
+2025-10-06 14:47:18,337 - INFO -   NPS: 10.0, Categoría: Promotor, Recomendación: 10.0
+2025-10-06 14:47:18,337 - INFO -   NPS: 10.0, Categoría: Promotor, Recomendación: 10.0
+2025-10-06 14:47:18,337 - INFO - Muestra BV:
+2025-10-06 14:47:18,338 - INFO -   NPS: 10, Dispositivo: desktop, País: Colombia
+2025-10-06 14:47:18,338 - INFO -   NPS: 10, Dispositivo: desktop, País: Colombia
+2025-10-06 14:47:18,338 - INFO -   NPS: 10, Dispositivo: desktop, País: Colombia
+2025-10-06 14:47:20,772 - INFO - Índices creados exitosamente
+2025-10-06 14:47:20,772 - INFO - ==================================================
+2025-10-06 14:47:20,772 - INFO - RESUMEN DE INSERCIÓN
+2025-10-06 14:47:20,772 - INFO - ==================================================
+2025-10-06 14:47:20,773 - INFO - Banco Móvil insertado: 757929 registros
+2025-10-06 14:47:20,773 - INFO - Banco Virtual insertado: 5727 registros
+2025-10-06 14:47:20,773 - INFO - Total insertado: 763656 registros
+2025-10-06 14:47:20,773 - INFO - Errores: 0
+2025-10-06 14:47:20,773 - INFO - Tiempo total: 0:05:28.224009
+2025-10-06 14:47:20,773 - INFO - ==================================================
+2025-10-06 14:47:20,773 - INFO - PIPELINE VALIDADO - Listo para archivos grandes

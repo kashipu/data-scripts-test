@@ -1,16 +1,22 @@
 #!/usr/bin/env python3
 """
-Script Completo: Insertar Muestras Limpias en PostgreSQL
-Crea tablas separadas para Banco Móvil y Banco Virtual
+Script Optimizado: Insertar Muestras Limpias en PostgreSQL
+- Preserva TODOS los datos importantes (customer_id, answerDate, etc.)
+- Usa append para acumular históricos (no borra datos)
+- Procesa TODOS los archivos en muestras_limpias/ automáticamente
+- Agrega trazabilidad con source_file
 """
 
 import pandas as pd
 from sqlalchemy import create_engine, text
+from sqlalchemy.exc import IntegrityError
 import psycopg2
+from psycopg2 import errors
 import logging
 from datetime import datetime
 import os
 from pathlib import Path
+import re
 
 class NPSInserter:
     """Clase para insertar datos NPS limpios en PostgreSQL"""
@@ -22,6 +28,8 @@ class NPSInserter:
         self.stats = {
             'bm_inserted': 0,
             'bv_inserted': 0,
+            'bm_skipped': 0,
+            'bv_skipped': 0,
             'errors': 0,
             'start_time': None,
             'end_time': None
@@ -88,190 +96,293 @@ class NPSInserter:
             return False
     
     def create_tables_if_needed(self):
-        """Crea tablas optimizadas si no existen"""
+        """Crea tablas optimizadas con TODAS las columnas importantes"""
         if not self.engine:
             self.logger.error("Engine no disponible para crear tablas")
             return False
-            
+
         try:
             with self.engine.connect() as conn:
-                # Tabla para Banco Móvil
+                # Tabla para Banco Móvil - PRESERVA TODOS LOS DATOS
                 bm_table_sql = """
                 CREATE TABLE IF NOT EXISTS banco_movil_clean (
                     id SERIAL PRIMARY KEY,
                     timestamp TIMESTAMP,
-                    customer_id VARCHAR(100),
+                    answer_date TIMESTAMP,
+                    answers TEXT,
                     channel VARCHAR(50),
-                    nps_recomendacion_score INTEGER,
+                    cust_ident_num BIGINT,
+                    cust_ident_type VARCHAR(10),
+                    feedback_type VARCHAR(50),
+                    record_id INTEGER,
+                    nps_original VARCHAR(50),
+                    nps_recomendacion_score FLOAT,
                     nps_recomendacion_motivo TEXT,
-                    csat_satisfaccion_score INTEGER,
+                    csat_satisfaccion_score FLOAT,
                     csat_satisfaccion_motivo TEXT,
-                    nps_score_original INTEGER,
-                    nps_score INTEGER,
+                    nps_score FLOAT,
                     nps_category VARCHAR(20),
                     cleaned_date TIMESTAMP,
                     file_type VARCHAR(10),
-                    month_year VARCHAR(7),
-                    processed_date TIMESTAMP DEFAULT NOW()
+                    month_year VARCHAR(20),
+                    source_file VARCHAR(255),
+                    inserted_at TIMESTAMP DEFAULT NOW()
                 );
                 """
-                
-                # Tabla para Banco Virtual  
+
+                # Tabla para Banco Virtual - COLUMNAS DINÁMICAS
                 bv_table_sql = """
                 CREATE TABLE IF NOT EXISTS banco_virtual_clean (
                     id SERIAL PRIMARY KEY,
-                    date_submitted_original TIMESTAMP,
+                    date_submitted_original VARCHAR(50),
                     date_submitted TIMESTAMP,
-                    country VARCHAR(50),
+                    country VARCHAR(100),
                     source_url TEXT,
-                    device VARCHAR(50),
-                    browser VARCHAR(100),
-                    operating_system VARCHAR(100),
+                    device VARCHAR(100),
+                    browser VARCHAR(200),
+                    operating_system VARCHAR(200),
                     nps_score_bv INTEGER,
-                    nps_score INTEGER,
-                    nps_category VARCHAR(20),
                     calificacion_acerca TEXT,
                     motivo_calificacion TEXT,
-                    tags_nps TEXT,
+                    tags_recomendacion TEXT,
                     tags_calificacion TEXT,
                     tags_motivo TEXT,
-                    sentiment_motivo VARCHAR(20),
+                    sentiment_motivo TEXT,
+                    month_year VARCHAR(20),
+                    nps_score INTEGER,
+                    nps_category VARCHAR(20),
                     cleaned_date TIMESTAMP,
                     file_type VARCHAR(10),
-                    month_year VARCHAR(7),
-                    processed_date TIMESTAMP DEFAULT NOW()
+                    source_file VARCHAR(255),
+                    inserted_at TIMESTAMP DEFAULT NOW()
                 );
                 """
-                
+
                 # Ejecuta creación de tablas
                 conn.execute(text(bm_table_sql))
                 conn.execute(text(bv_table_sql))
                 conn.commit()
-                
+
                 self.logger.info("Tablas creadas/verificadas exitosamente")
                 return True
-                
+
         except Exception as e:
             self.logger.error(f"Error creando tablas: {str(e)}")
             return False
     
     def insert_banco_movil(self, file_path):
-        """Inserta datos de Banco Móvil"""
+        """Inserta datos de Banco Móvil con TODAS las columnas importantes"""
         if not self.engine:
             self.logger.error("Engine no disponible para insertar BM")
             return False
-            
+
         try:
-            self.logger.info(f"Insertando Banco Móvil desde: {file_path}")
-            
+            file_name = Path(file_path).name
+
+            # VALIDACIÓN: Verifica si el archivo ya fue procesado
+            if self.file_already_processed(file_name, 'banco_movil_clean'):
+                self.logger.warning(f"⊘ OMITIDO - Archivo ya procesado: {file_name}")
+                self.stats['bm_skipped'] += 1
+                return True
+
+            self.logger.info(f"→ Procesando Banco Móvil: {file_name}")
+
             # Lee archivo
             df = pd.read_excel(file_path)
             original_count = len(df)
-            
-            # Log de columnas disponibles
-            self.logger.info(f"Columnas en BM: {list(df.columns)}")
-            
-            # FILTRAR SOLO COLUMNAS RELEVANTES PARA LA TABLA
-            columns_to_keep = [
-                'timestamp', 'customer_id', 'channel',
-                'nps_recomendacion_score', 'nps_recomendacion_motivo',
-                'csat_satisfaccion_score', 'csat_satisfaccion_motivo',
-                'nps_score', 'nps_category', 'cleaned_date', 'file_type', 'month_year'
-            ]
-            
-            # Filtrar solo columnas que existen
-            available_columns = [col for col in columns_to_keep if col in df.columns]
-            df_filtered = df[available_columns].copy()
-            
-            self.logger.info(f"Columnas filtradas para inserción: {available_columns}")
-            
-            # Limpia datos antes de insertar
-            df_filtered = df_filtered.dropna(how='all')  # Remueve filas completamente vacías
-            
+
+            # Mapeo de columnas origen → destino
+            column_mapping = {
+                'timestamp': 'timestamp',
+                'answerDate': 'answer_date',
+                'answers': 'answers',
+                'channel': 'channel',
+                'custIdentNum': 'cust_ident_num',
+                'custIdentType': 'cust_ident_type',
+                'feedbackType': 'feedback_type',
+                'id': 'record_id',
+                'NPS': 'nps_original',
+                'nps_recomendacion_score': 'nps_recomendacion_score',
+                'nps_recomendacion_motivo': 'nps_recomendacion_motivo',
+                'csat_satisfaccion_score': 'csat_satisfaccion_score',
+                'csat_satisfaccion_motivo': 'csat_satisfaccion_motivo',
+                'nps_score': 'nps_score',
+                'nps_category': 'nps_category',
+                'cleaned_date': 'cleaned_date',
+                'file_type': 'file_type',
+                'month_year': 'month_year'
+            }
+
+            # Renombra columnas
+            df_renamed = df.rename(columns=column_mapping)
+
+            # Agrega columna de trazabilidad
+            df_renamed['source_file'] = file_name
+
+            # Selecciona solo columnas que existen en el mapeo
+            cols_to_insert = [v for k, v in column_mapping.items() if k in df.columns]
+            cols_to_insert.append('source_file')
+            df_final = df_renamed[cols_to_insert].copy()
+
+            # Limpia datos
+            df_final = df_final.dropna(how='all')
+
             # Convierte fechas
-            if 'timestamp' in df_filtered.columns:
-                df_filtered['timestamp'] = pd.to_datetime(df_filtered['timestamp'], errors='coerce')
-            if 'cleaned_date' in df_filtered.columns:
-                df_filtered['cleaned_date'] = pd.to_datetime(df_filtered['cleaned_date'], errors='coerce')
-            
-            # Inserta en PostgreSQL
-            rows_inserted = df_filtered.to_sql(
-                'banco_movil_clean', 
-                self.engine, 
-                if_exists='append',
-                index=False,
-                method='multi',
-                chunksize=1000
-            )
-            
-            self.stats['bm_inserted'] = len(df_filtered)
-            self.logger.info(f"Banco Móvil insertado: {len(df_filtered)} registros (original: {original_count})")
-            
-            return True
-            
+            date_cols = ['timestamp', 'answer_date', 'cleaned_date']
+            for col in date_cols:
+                if col in df_final.columns:
+                    df_final[col] = pd.to_datetime(df_final[col], errors='coerce')
+
+            # Convierte answers a string si es objeto
+            if 'answers' in df_final.columns:
+                df_final['answers'] = df_final['answers'].astype(str)
+
+            self.logger.info(f"Columnas a insertar BM: {list(df_final.columns)}")
+
+            # Inserta en PostgreSQL con APPEND (acumula históricos)
+            try:
+                df_final.to_sql(
+                    'banco_movil_clean',
+                    self.engine,
+                    if_exists='append',
+                    index=False,
+                    method='multi',
+                    chunksize=1000
+                )
+
+                self.stats['bm_inserted'] += len(df_final)
+                self.logger.info(f"✓ Banco Móvil insertado: {len(df_final)} registros de {original_count}")
+                return True
+
+            except IntegrityError as ie:
+                # Captura violación de constraint UNIQUE
+                self.logger.error(f"✗ DUPLICADOS DETECTADOS - {file_name}")
+                self.logger.error(f"  La base de datos rechazó registros duplicados: {str(ie.orig)}")
+                self.logger.error(f"  Verifica que el archivo no haya sido modificado y procesado nuevamente")
+                self.stats['errors'] += 1
+                return False
+
         except Exception as e:
-            self.logger.error(f"Error insertando Banco Móvil: {str(e)}")
+            self.logger.error(f"✗ Error insertando Banco Móvil: {str(e)}")
             self.stats['errors'] += 1
             return False
     
     def insert_banco_virtual(self, file_path):
-        """Inserta datos de Banco Virtual"""
+        """Inserta datos de Banco Virtual con mapeo de columnas correcto"""
         if not self.engine:
             self.logger.error("Engine no disponible para insertar BV")
             return False
-            
+
         try:
-            self.logger.info(f"Insertando Banco Virtual desde: {file_path}")
-            
+            file_name = Path(file_path).name
+
+            # VALIDACIÓN: Verifica si el archivo ya fue procesado
+            if self.file_already_processed(file_name, 'banco_virtual_clean'):
+                self.logger.warning(f"⊘ OMITIDO - Archivo ya procesado: {file_name}")
+                self.stats['bv_skipped'] += 1
+                return True
+
+            self.logger.info(f"→ Procesando Banco Virtual: {file_name}")
+
             # Lee archivo
             df = pd.read_excel(file_path)
             original_count = len(df)
-            
-            # Log de columnas disponibles
-            self.logger.info(f"Columnas en BV: {list(df.columns)}")
-            
-            # FILTRAR SOLO COLUMNAS RELEVANTES PARA LA TABLA
-            columns_to_keep = [
-                'date_submitted', 'country', 'source_url', 'device', 'browser', 'operating_system',
-                'nps_score_bv', 'nps_score', 'nps_category', 'cleaned_date', 'file_type', 'month_year'
-            ]
-            
-            # Agregar columnas de feedback si existen (con nombres largos)
-            feedback_cols = [col for col in df.columns if 'calificación' in col.lower() or 'motivo' in col.lower() or 'tags' in col.lower() or 'sentiment' in col.lower()]
-            columns_to_keep.extend(feedback_cols)
-            
-            # Filtrar solo columnas que existen
-            available_columns = [col for col in columns_to_keep if col in df.columns]
-            df_filtered = df[available_columns].copy()
-            
-            self.logger.info(f"Columnas filtradas para inserción: {available_columns}")
-            
-            # Limpia datos antes de insertar
-            df_filtered = df_filtered.dropna(how='all')
-            
+
+            # Mapeo de columnas con regex para encontrar columnas con encoding roto
+            def find_column(df, patterns):
+                """Encuentra columna que coincida con algún patrón"""
+                for col in df.columns:
+                    for pattern in patterns:
+                        if re.search(pattern, col, re.IGNORECASE):
+                            return col
+                return None
+
+            # Mapeo explícito de columnas BV
+            column_mapping = {
+                'date_submitted_original': 'date_submitted_original',
+                'date_submitted': 'date_submitted',
+                'country': 'country',
+                'source_url': 'source_url',
+                'device': 'device',
+                'browser': 'browser',
+                'operating_system': 'operating_system',
+                'nps_score_bv': 'nps_score_bv',
+                'month_year': 'month_year',
+                'nps_score': 'nps_score',
+                'nps_category': 'nps_category',
+                'cleaned_date': 'cleaned_date',
+                'file_type': 'file_type'
+            }
+
+            # Busca columnas con encoding roto o caracteres especiales
+            calificacion_col = find_column(df, [r'calificaci[oó]n.*acerca', r'Tu calificaci'])
+            motivo_col = find_column(df, [r'cu[eé]ntanos.*motivo', r'motivo.*calificaci'])
+            tags_nps_col = find_column(df, [r'tags.*recomien', r'tags.*probable'])
+            tags_calif_col = find_column(df, [r'tags.*calificaci[oó]n.*acerca'])
+            tags_motivo_col = find_column(df, [r'tags.*motivo'])
+            sentiment_col = find_column(df, [r'sentiment.*motivo'])
+
+            # Agrega al mapeo si existen
+            if calificacion_col:
+                column_mapping[calificacion_col] = 'calificacion_acerca'
+            if motivo_col:
+                column_mapping[motivo_col] = 'motivo_calificacion'
+            if tags_nps_col:
+                column_mapping[tags_nps_col] = 'tags_recomendacion'
+            if tags_calif_col:
+                column_mapping[tags_calif_col] = 'tags_calificacion'
+            if tags_motivo_col:
+                column_mapping[tags_motivo_col] = 'tags_motivo'
+            if sentiment_col:
+                column_mapping[sentiment_col] = 'sentiment_motivo'
+
+            # Renombra columnas
+            df_renamed = df.rename(columns=column_mapping)
+
+            # Agrega columna de trazabilidad
+            df_renamed['source_file'] = file_name
+
+            # Selecciona columnas que existen
+            cols_to_insert = [v for k, v in column_mapping.items() if k in df.columns]
+            cols_to_insert.append('source_file')
+            df_final = df_renamed[cols_to_insert].copy()
+
+            # Limpia datos
+            df_final = df_final.dropna(how='all')
+
             # Convierte fechas
-            if 'date_submitted' in df_filtered.columns:
-                df_filtered['date_submitted'] = pd.to_datetime(df_filtered['date_submitted'], errors='coerce')
-            if 'cleaned_date' in df_filtered.columns:
-                df_filtered['cleaned_date'] = pd.to_datetime(df_filtered['cleaned_date'], errors='coerce')
-            
-            # Inserta en PostgreSQL usando if_exists='replace' para recrear tabla con columnas correctas
-            rows_inserted = df_filtered.to_sql(
-                'banco_virtual_clean',
-                self.engine,
-                if_exists='replace',  # Cambiado a replace para que cree tabla con columnas correctas 
-                index=False,
-                method='multi',
-                chunksize=1000
-            )
-            
-            self.stats['bv_inserted'] = len(df_filtered)
-            self.logger.info(f"Banco Virtual insertado: {len(df_filtered)} registros (original: {original_count})")
-            
-            return True
-            
+            date_cols = ['date_submitted', 'cleaned_date']
+            for col in date_cols:
+                if col in df_final.columns:
+                    df_final[col] = pd.to_datetime(df_final[col], errors='coerce')
+
+            self.logger.info(f"Columnas a insertar BV: {list(df_final.columns)}")
+
+            # Inserta con APPEND (acumula históricos)
+            try:
+                df_final.to_sql(
+                    'banco_virtual_clean',
+                    self.engine,
+                    if_exists='append',
+                    index=False,
+                    method='multi',
+                    chunksize=1000
+                )
+
+                self.stats['bv_inserted'] += len(df_final)
+                self.logger.info(f"✓ Banco Virtual insertado: {len(df_final)} registros de {original_count}")
+                return True
+
+            except IntegrityError as ie:
+                # Captura violación de constraint UNIQUE
+                self.logger.error(f"✗ DUPLICADOS DETECTADOS - {file_name}")
+                self.logger.error(f"  La base de datos rechazó registros duplicados: {str(ie.orig)}")
+                self.logger.error(f"  Verifica que el archivo no haya sido modificado y procesado nuevamente")
+                self.stats['errors'] += 1
+                return False
+
         except Exception as e:
-            self.logger.error(f"Error insertando Banco Virtual: {str(e)}")
+            self.logger.error(f"✗ Error insertando Banco Virtual: {str(e)}")
             self.stats['errors'] += 1
             return False
     
@@ -318,25 +429,68 @@ class NPSInserter:
             self.logger.error(f"Error verificando datos: {str(e)}")
             return False
     
+    def file_already_processed(self, file_name, table_name):
+        """Verifica si un archivo ya fue procesado anteriormente"""
+        try:
+            with self.engine.connect() as conn:
+                result = conn.execute(
+                    text(f"SELECT COUNT(*) FROM {table_name} WHERE source_file = :filename"),
+                    {"filename": file_name}
+                )
+                count = result.fetchone()[0]
+                return count > 0
+        except Exception as e:
+            self.logger.warning(f"No se pudo verificar archivo previo: {str(e)}")
+            return False
+
+    def get_processed_files_info(self):
+        """Obtiene información de archivos ya procesados"""
+        try:
+            with self.engine.connect() as conn:
+                # Info de BM
+                bm_result = conn.execute(text("""
+                    SELECT source_file, COUNT(*) as registros, MAX(inserted_at) as ultima_insercion
+                    FROM banco_movil_clean
+                    GROUP BY source_file
+                    ORDER BY ultima_insercion DESC
+                """))
+                bm_files = bm_result.fetchall()
+
+                # Info de BV
+                bv_result = conn.execute(text("""
+                    SELECT source_file, COUNT(*) as registros, MAX(inserted_at) as ultima_insercion
+                    FROM banco_virtual_clean
+                    GROUP BY source_file
+                    ORDER BY ultima_insercion DESC
+                """))
+                bv_files = bv_result.fetchall()
+
+                return {'bm': bm_files, 'bv': bv_files}
+        except Exception as e:
+            self.logger.warning(f"No se pudo obtener info de archivos: {str(e)}")
+            return {'bm': [], 'bv': []}
+
     def create_indexes(self):
         """Crea índices para optimizar queries"""
         try:
             with self.engine.connect() as conn:
                 indexes = [
                     "CREATE INDEX IF NOT EXISTS idx_bm_nps_score ON banco_movil_clean(nps_score);",
-                    "CREATE INDEX IF NOT EXISTS idx_bm_category ON banco_movil_clean(nps_category);", 
+                    "CREATE INDEX IF NOT EXISTS idx_bm_category ON banco_movil_clean(nps_category);",
                     "CREATE INDEX IF NOT EXISTS idx_bm_month ON banco_movil_clean(month_year);",
+                    "CREATE INDEX IF NOT EXISTS idx_bm_source_file ON banco_movil_clean(source_file);",
                     "CREATE INDEX IF NOT EXISTS idx_bv_nps_score ON banco_virtual_clean(nps_score);",
                     "CREATE INDEX IF NOT EXISTS idx_bv_device ON banco_virtual_clean(device);",
-                    "CREATE INDEX IF NOT EXISTS idx_bv_country ON banco_virtual_clean(country);"
+                    "CREATE INDEX IF NOT EXISTS idx_bv_country ON banco_virtual_clean(country);",
+                    "CREATE INDEX IF NOT EXISTS idx_bv_source_file ON banco_virtual_clean(source_file);"
                 ]
-                
+
                 for index_sql in indexes:
                     conn.execute(text(index_sql))
-                
+
                 conn.commit()
                 self.logger.info("Índices creados exitosamente")
-                
+
         except Exception as e:
             self.logger.error(f"Error creando índices: {str(e)}")
     
@@ -344,27 +498,32 @@ class NPSInserter:
         """Imprime resumen final"""
         self.stats['end_time'] = datetime.now()
         duration = self.stats['end_time'] - self.stats['start_time']
-        
-        self.logger.info("=" * 50)
+
+        self.logger.info("=" * 60)
         self.logger.info("RESUMEN DE INSERCIÓN")
-        self.logger.info("=" * 50)
-        self.logger.info(f"Banco Móvil insertado: {self.stats['bm_inserted']} registros")
-        self.logger.info(f"Banco Virtual insertado: {self.stats['bv_inserted']} registros")
+        self.logger.info("=" * 60)
+        self.logger.info(f"Banco Móvil:")
+        self.logger.info(f"  ✓ Insertados: {self.stats['bm_inserted']} registros")
+        self.logger.info(f"  ⊘ Omitidos: {self.stats['bm_skipped']} archivos (ya procesados)")
+        self.logger.info(f"Banco Virtual:")
+        self.logger.info(f"  ✓ Insertados: {self.stats['bv_inserted']} registros")
+        self.logger.info(f"  ⊘ Omitidos: {self.stats['bv_skipped']} archivos (ya procesados)")
         self.logger.info(f"Total insertado: {self.stats['bm_inserted'] + self.stats['bv_inserted']} registros")
         self.logger.info(f"Errores: {self.stats['errors']}")
         self.logger.info(f"Tiempo total: {duration}")
-        self.logger.info("=" * 50)
-        
+        self.logger.info("=" * 60)
+
         if self.stats['errors'] == 0:
-            self.logger.info("PIPELINE VALIDADO - Listo para archivos grandes")
+            self.logger.info("✓ PIPELINE COMPLETADO - Sin duplicados garantizados")
         else:
-            self.logger.info("Revisar errores antes de procesar archivos grandes")
+            self.logger.info("⚠ Revisar errores antes de procesar más archivos")
 
 def main():
-    """Función principal"""
-    print("INSERCION DE MUESTRAS NPS EN POSTGRESQL")
-    print("=" * 50)
-    
+    """Función principal - Procesa TODOS los archivos en muestras_limpias/"""
+    print("=" * 60)
+    print("INSERCIÓN OPTIMIZADA DE MUESTRAS NPS EN POSTGRESQL")
+    print("=" * 60)
+
     # Configuración de base de datos
     DB_CONFIG = {
         'host': 'localhost',
@@ -373,49 +532,102 @@ def main():
         'username': 'postgres',
         'password': 'postgres'  # CAMBIA ESTO
     }
-    
-    # Archivos a procesar - ACTUALIZAR ESTAS RUTAS
-    files = {
-        'bm': 'muestras_limpias/agosto_bm_2025_muestra_281230_LIMPIO.xlsx',  # Cambia por tu archivo BM limpio
-        'bv': 'muestras_limpias/agosto_bv_2025_muestra_1904_LIMPIO.xlsx'   # Cambia por tu archivo BV limpio
-    }
-    
-    # Verifica que existan los archivos
-    for file_type, file_path in files.items():
-        if not os.path.exists(file_path):
-            print(f"ERROR: Archivo no encontrado: {file_path}")
-            return
-    
+
+    # Encuentra TODOS los archivos en muestras_limpias/
+    samples_dir = Path('muestras_limpias')
+    if not samples_dir.exists():
+        print(f"ERROR: Directorio {samples_dir} no existe")
+        return
+
+    # Busca archivos BM y BV
+    all_files = list(samples_dir.glob('*.xlsx'))
+    bm_files = [f for f in all_files if '_BM_' in f.name or '_bm_' in f.name]
+    bv_files = [f for f in all_files if '_BV_' in f.name or '_bv_' in f.name]
+
+    print(f"\nArchivos encontrados:")
+    print(f"  Banco Móvil (BM): {len(bm_files)} archivos")
+    print(f"  Banco Virtual (BV): {len(bv_files)} archivos")
+    print(f"  Total: {len(bm_files) + len(bv_files)} archivos\n")
+
+    if len(bm_files) == 0 and len(bv_files) == 0:
+        print("ERROR: No se encontraron archivos para procesar")
+        return
+
     # Crea inserter
     inserter = NPSInserter(DB_CONFIG)
     inserter.stats['start_time'] = datetime.now()
-    
+
     try:
         # Conecta a base de datos
         if not inserter.connect_database():
             print("ERROR: No se pudo conectar a PostgreSQL")
             return
-        
-        # Inserta datos (las tablas se crean automáticamente)
-        success_bm = inserter.insert_banco_movil(files['bm'])
-        success_bv = inserter.insert_banco_virtual(files['bv'])
-        
-        if success_bm and success_bv:
-            # Verifica inserción
-            inserter.verify_data()
-            
-            # Crea índices
-            inserter.create_indexes()
-            
-            # Resumen final
-            inserter.print_summary()
-            
-        else:
-            print("ERROR: Falló la inserción de algunos archivos")
-    
+
+        # Crea tablas si no existen
+        if not inserter.create_tables_if_needed():
+            print("ERROR: No se pudieron crear las tablas")
+            return
+
+        # Muestra archivos ya procesados
+        print(f"\n{'='*60}")
+        print("VERIFICANDO ARCHIVOS YA PROCESADOS")
+        print(f"{'='*60}")
+        processed_info = inserter.get_processed_files_info()
+
+        if processed_info['bm']:
+            print(f"\nBanco Móvil - {len(processed_info['bm'])} archivos en BD:")
+            for file, count, date in processed_info['bm'][:5]:  # Muestra primeros 5
+                print(f"  • {file}: {count} registros (última: {date})")
+            if len(processed_info['bm']) > 5:
+                print(f"  ... y {len(processed_info['bm']) - 5} más")
+
+        if processed_info['bv']:
+            print(f"\nBanco Virtual - {len(processed_info['bv'])} archivos en BD:")
+            for file, count, date in processed_info['bv'][:5]:  # Muestra primeros 5
+                print(f"  • {file}: {count} registros (última: {date})")
+            if len(processed_info['bv']) > 5:
+                print(f"  ... y {len(processed_info['bv']) - 5} más")
+
+        if not processed_info['bm'] and not processed_info['bv']:
+            print("\nNo hay archivos procesados previamente (base de datos vacía)")
+
+        # Procesa todos los archivos BM
+        print(f"\n{'='*60}")
+        print(f"Procesando {len(bm_files)} archivos BANCO MÓVIL")
+        print(f"{'='*60}")
+        for i, file_path in enumerate(bm_files, 1):
+            print(f"\n[{i}/{len(bm_files)}] {file_path.name}")
+            inserter.insert_banco_movil(str(file_path))
+
+        # Procesa todos los archivos BV
+        print(f"\n{'='*60}")
+        print(f"Procesando {len(bv_files)} archivos BANCO VIRTUAL")
+        print(f"{'='*60}")
+        for i, file_path in enumerate(bv_files, 1):
+            print(f"\n[{i}/{len(bv_files)}] {file_path.name}")
+            inserter.insert_banco_virtual(str(file_path))
+
+        # Verifica inserción
+        print(f"\n{'='*60}")
+        print("VERIFICANDO DATOS INSERTADOS")
+        print(f"{'='*60}")
+        inserter.verify_data()
+
+        # Crea índices
+        print(f"\n{'='*60}")
+        print("CREANDO ÍNDICES")
+        print(f"{'='*60}")
+        inserter.create_indexes()
+
+        # Resumen final
+        print(f"\n")
+        inserter.print_summary()
+
     except Exception as e:
         inserter.logger.error(f"Error en proceso principal: {str(e)}")
-        
+        import traceback
+        traceback.print_exc()
+
     finally:
         if inserter.engine:
             inserter.engine.dispose()
