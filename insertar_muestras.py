@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-Script Optimizado: Insertar Muestras Limpias en PostgreSQL
+Script Optimizado: Insertar Datoss Limpias en PostgreSQL
 - Preserva TODOS los datos importantes (customer_id, answerDate, etc.)
 - Usa append para acumular históricos (no borra datos)
-- Procesa TODOS los archivos en muestras_limpias/ automáticamente
+- Procesa TODOS los archivos en datos_clean/ automáticamente
 - Agrega trazabilidad con source_file
 """
 
@@ -15,8 +16,18 @@ from psycopg2 import errors
 import logging
 from datetime import datetime
 import os
+import sys
 from pathlib import Path
 import re
+from urllib.parse import quote_plus
+
+# Configurar codificación de salida para Windows
+if sys.platform == 'win32':
+    import codecs
+    if sys.stdout.encoding != 'utf-8':
+        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'ignore')
+    if sys.stderr.encoding != 'utf-8':
+        sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'ignore')
 
 class NPSInserter:
     """Clase para insertar datos NPS limpios en PostgreSQL"""
@@ -37,35 +48,74 @@ class NPSInserter:
     
     def setup_logging(self):
         """Configura logging"""
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            handlers=[
-                logging.FileHandler('insercion_datos.log', encoding='utf-8'),
-                logging.StreamHandler()
-            ]
-        )
+        # Handler para archivo con UTF-8
+        file_handler = logging.FileHandler('insercion_datos.log', encoding='utf-8')
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+
+        # Handler para consola con manejo de errores de encoding
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(logging.INFO)
+        console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+
+        # Configurar logger
         self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.INFO)
+        self.logger.addHandler(file_handler)
+        self.logger.addHandler(console_handler)
+
+        # Evitar propagación para no duplicar mensajes
+        self.logger.propagate = False
     
     def connect_database(self):
         """Establece conexión con PostgreSQL"""
         try:
+            # Manejo de encoding de contraseña
+            password = self.db_config['password']
+
+            # Si la contraseña es bytes, decodificarla
+            if isinstance(password, bytes):
+                try:
+                    password = password.decode('utf-8')
+                except UnicodeDecodeError:
+                    # Intentar con latin-1 si UTF-8 falla
+                    password = password.decode('latin-1')
+                    self.logger.warning("Contraseña decodificada como latin-1")
+
+            # Si es string, asegurarse de que está en UTF-8
+            elif isinstance(password, str):
+                try:
+                    # Intentar encode/decode para validar UTF-8
+                    password.encode('utf-8')
+                except UnicodeEncodeError:
+                    # Re-codificar desde latin-1 a UTF-8
+                    password = password.encode('latin-1').decode('utf-8', errors='replace')
+                    self.logger.warning("Contraseña re-codificada de latin-1 a UTF-8")
+
             # Primero prueba conexión básica con parámetros de encoding
             conn = psycopg2.connect(
                 host=self.db_config['host'],
                 port=self.db_config['port'],
                 database=self.db_config['database'],
                 user=self.db_config['username'],
-                password=self.db_config['password'],
+                password=password,
                 client_encoding='utf8'
             )
             conn.close()
             self.logger.info("Conexión PostgreSQL exitosa")
-            
+
             # Crea engine SQLAlchemy con parámetros adicionales
+            # URL-encode password para manejar caracteres especiales
+            try:
+                encoded_password = quote_plus(password)
+            except (UnicodeDecodeError, UnicodeEncodeError) as e:
+                self.logger.error(f"Error encoding password: {str(e)}")
+                # Usar password sin codificar como fallback
+                encoded_password = password
+
             connection_string = (
                 f"postgresql://{self.db_config['username']}:"
-                f"{self.db_config['password']}@{self.db_config['host']}:"
+                f"{encoded_password}@{self.db_config['host']}:"
                 f"{self.db_config['port']}/{self.db_config['database']}"
                 f"?client_encoding=utf8"
             )
@@ -90,9 +140,37 @@ class NPSInserter:
                 return False
             
             return True
-            
+
         except Exception as e:
-            self.logger.error(f"Error conectando a PostgreSQL: {str(e)}")
+            # Manejar errores de encoding en mensajes de PostgreSQL
+            if isinstance(e, UnicodeDecodeError) and hasattr(e, 'object'):
+                # Extraer mensaje original de PostgreSQL en latin-1
+                try:
+                    error_bytes = e.object
+                    error_msg = error_bytes.decode('latin-1')
+                    print(f"\n{'='*60}")
+                    print(f"ERROR DE POSTGRESQL:")
+                    print(f"{'='*60}")
+                    print(error_msg)
+                    print(f"{'='*60}\n")
+
+                    # Log sin caracteres especiales
+                    error_msg_simple = error_msg.replace('«', '"').replace('»', '"')
+                    self.logger.error(f"Error de PostgreSQL: {error_msg_simple}")
+                    return False
+                except:
+                    pass
+
+            # Manejo genérico de otros errores
+            try:
+                error_msg = str(e)
+            except (UnicodeDecodeError, UnicodeEncodeError):
+                try:
+                    error_msg = str(e).encode('latin-1', errors='replace').decode('utf-8', errors='replace')
+                except:
+                    error_msg = repr(e)
+
+            self.logger.error(f"Error conectando a PostgreSQL: {error_msg}")
             return False
     
     def create_tables_if_needed(self):
@@ -181,7 +259,7 @@ class NPSInserter:
 
             # VALIDACIÓN: Verifica si el archivo ya fue procesado
             if self.file_already_processed(file_name, 'banco_movil_clean'):
-                self.logger.warning(f"⊘ OMITIDO - Archivo ya procesado: {file_name}")
+                self.logger.warning(f"[OMITIDO] - Archivo ya procesado: {file_name}")
                 self.stats['bm_skipped'] += 1
                 return True
 
@@ -251,7 +329,7 @@ class NPSInserter:
                 )
 
                 self.stats['bm_inserted'] += len(df_final)
-                self.logger.info(f"✓ Banco Móvil insertado: {len(df_final)} registros de {original_count}")
+                self.logger.info(f"[OK] Banco Movil insertado: {len(df_final)} registros de {original_count}")
                 return True
 
             except IntegrityError as ie:
@@ -278,7 +356,7 @@ class NPSInserter:
 
             # VALIDACIÓN: Verifica si el archivo ya fue procesado
             if self.file_already_processed(file_name, 'banco_virtual_clean'):
-                self.logger.warning(f"⊘ OMITIDO - Archivo ya procesado: {file_name}")
+                self.logger.warning(f"[OMITIDO] - Archivo ya procesado: {file_name}")
                 self.stats['bv_skipped'] += 1
                 return True
 
@@ -370,7 +448,7 @@ class NPSInserter:
                 )
 
                 self.stats['bv_inserted'] += len(df_final)
-                self.logger.info(f"✓ Banco Virtual insertado: {len(df_final)} registros de {original_count}")
+                self.logger.info(f"[OK] Banco Virtual insertado: {len(df_final)} registros de {original_count}")
                 return True
 
             except IntegrityError as ie:
@@ -400,7 +478,7 @@ class NPSInserter:
                 
                 self.logger.info(f"Verificación - BM: {bm_count} registros, BV: {bv_count} registros")
                 
-                # Muestra ejemplos de datos
+                # Datos ejemplos de datos
                 bm_sample = conn.execute(text("""
                     SELECT nps_score, nps_category, nps_recomendacion_score 
                     FROM banco_movil_clean 
@@ -408,7 +486,7 @@ class NPSInserter:
                     LIMIT 3
                 """))
                 
-                self.logger.info("Muestra BM:")
+                self.logger.info("Datos BM:")
                 for row in bm_sample:
                     self.logger.info(f"  NPS: {row[0]}, Categoría: {row[1]}, Recomendación: {row[2]}")
                 
@@ -419,7 +497,7 @@ class NPSInserter:
                     LIMIT 3
                 """))
                 
-                self.logger.info("Muestra BV:")
+                self.logger.info("Datos BV:")
                 for row in bv_sample:
                     self.logger.info(f"  NPS: {row[0]}, Dispositivo: {row[1]}, País: {row[2]}")
                 
@@ -503,38 +581,38 @@ class NPSInserter:
         self.logger.info("RESUMEN DE INSERCIÓN")
         self.logger.info("=" * 60)
         self.logger.info(f"Banco Móvil:")
-        self.logger.info(f"  ✓ Insertados: {self.stats['bm_inserted']} registros")
-        self.logger.info(f"  ⊘ Omitidos: {self.stats['bm_skipped']} archivos (ya procesados)")
+        self.logger.info(f"  [OK] Insertados: {self.stats['bm_inserted']} registros")
+        self.logger.info(f"  [SKIP] Omitidos: {self.stats['bm_skipped']} archivos (ya procesados)")
         self.logger.info(f"Banco Virtual:")
-        self.logger.info(f"  ✓ Insertados: {self.stats['bv_inserted']} registros")
-        self.logger.info(f"  ⊘ Omitidos: {self.stats['bv_skipped']} archivos (ya procesados)")
+        self.logger.info(f"  [OK] Insertados: {self.stats['bv_inserted']} registros")
+        self.logger.info(f"  [SKIP] Omitidos: {self.stats['bv_skipped']} archivos (ya procesados)")
         self.logger.info(f"Total insertado: {self.stats['bm_inserted'] + self.stats['bv_inserted']} registros")
         self.logger.info(f"Errores: {self.stats['errors']}")
         self.logger.info(f"Tiempo total: {duration}")
         self.logger.info("=" * 60)
 
         if self.stats['errors'] == 0:
-            self.logger.info("✓ PIPELINE COMPLETADO - Sin duplicados garantizados")
+            self.logger.info("[OK] PIPELINE COMPLETADO - Sin duplicados garantizados")
         else:
-            self.logger.info("⚠ Revisar errores antes de procesar más archivos")
+            self.logger.info("[WARNING] Revisar errores antes de procesar mas archivos")
 
 def main():
-    """Función principal - Procesa TODOS los archivos en muestras_limpias/"""
+    """Función principal - Procesa TODOS los archivos en datos_clean/"""
     print("=" * 60)
-    print("INSERCIÓN OPTIMIZADA DE MUESTRAS NPS EN POSTGRESQL")
+    print("INSERCIÓN OPTIMIZADA DE DATOS NPS EN POSTGRESQL")
     print("=" * 60)
 
     # Configuración de base de datos
     DB_CONFIG = {
         'host': 'localhost',
         'port': '5432',
-        'database': 'test_nps',
+        'database': 'nps_analitycs',
         'username': 'postgres',
         'password': 'postgres'  # CAMBIA ESTO
     }
 
-    # Encuentra TODOS los archivos en muestras_limpias/
-    samples_dir = Path('muestras_limpias')
+    # Encuentra TODOS los archivos en datos_clean/
+    samples_dir = Path('datos_clean')
     if not samples_dir.exists():
         print(f"ERROR: Directorio {samples_dir} no existe")
         return
@@ -568,7 +646,7 @@ def main():
             print("ERROR: No se pudieron crear las tablas")
             return
 
-        # Muestra archivos ya procesados
+        # Datos archivos ya procesados
         print(f"\n{'='*60}")
         print("VERIFICANDO ARCHIVOS YA PROCESADOS")
         print(f"{'='*60}")
@@ -576,14 +654,14 @@ def main():
 
         if processed_info['bm']:
             print(f"\nBanco Móvil - {len(processed_info['bm'])} archivos en BD:")
-            for file, count, date in processed_info['bm'][:5]:  # Muestra primeros 5
+            for file, count, date in processed_info['bm'][:5]:  # Datos primeros 5
                 print(f"  • {file}: {count} registros (última: {date})")
             if len(processed_info['bm']) > 5:
                 print(f"  ... y {len(processed_info['bm']) - 5} más")
 
         if processed_info['bv']:
             print(f"\nBanco Virtual - {len(processed_info['bv'])} archivos en BD:")
-            for file, count, date in processed_info['bv'][:5]:  # Muestra primeros 5
+            for file, count, date in processed_info['bv'][:5]:  # Datos primeros 5
                 print(f"  • {file}: {count} registros (última: {date})")
             if len(processed_info['bv']) > 5:
                 print(f"  ... y {len(processed_info['bv']) - 5} más")

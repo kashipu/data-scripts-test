@@ -18,14 +18,14 @@ from datetime import datetime
 DB_CONFIG = {
     'host': 'localhost',
     'port': '5432',
-    'database': 'test_nps',
+    'database': 'nps_analitycs',
     'username': 'postgres',
     'password': 'postgres'  # ⚠️ CAMBIA ESTO POR TU PASSWORD
 }
 
 def test_connection():
     """Test básico de conexión"""
-    print("🔧 Probando conexión a PostgreSQL...")
+    print("Probando conexión a PostgreSQL...")
     
     try:
         # Test con psycopg2
@@ -52,25 +52,23 @@ def test_connection():
 
 def test_sqlalchemy():
     """Test con SQLAlchemy para pandas"""
-    print("\n🔧 Probando SQLAlchemy...")
-    
+    print("\nProbando SQLAlchemy...")
+
     try:
         engine = create_engine(
             f"postgresql://{DB_CONFIG['username']}:{DB_CONFIG['password']}"
             f"@{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['database']}"
         )
-        
-        # Test query con pandas
-        df = pd.read_sql("SELECT * FROM hello_nps", engine)
-        print(f"✅ SQLAlchemy funciona!")
-        print(f"📊 Datos leídos: {len(df)} registros")
-        print("\n📋 Datos de prueba:")
-        print(df)
-        
+
+        # Test simple query
+        pd.read_sql("SELECT 1 as test", engine)
+        print(f"OK - SQLAlchemy funciona!")
+        print(f"Conexion establecida con {DB_CONFIG['database']}")
+
         return engine
-        
+
     except Exception as e:
-        print(f"❌ Error SQLAlchemy: {e}")
+        print(f"Error SQLAlchemy: {e}")
         return None
 
 def simulate_nps_cleaning():
@@ -117,14 +115,14 @@ def simulate_nps_cleaning():
             cleaned_data.append(parsed)
             print(f"✅ JSON parseado exitosamente")
         except Exception as e:
-            print(f"❌ Error parseando: {e}")
+            print(f" Error parseando: {e}")
     
     print(f"\n✅ Limpieza completada: {len(cleaned_data)} registros limpios")
     return cleaned_data
 
 def test_data_insertion(engine):
     """Test inserción de datos simulados"""
-    print("\n📥 Probando inserción de datos...")
+    print("\n Probando inserción de datos...")
     
     # Crear datos de prueba simulando estructura real
     test_data = pd.DataFrame({
