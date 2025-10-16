@@ -1,0 +1,21 @@
+======================================================================
+LOG DE LIMPIEZA
+======================================================================
+
+Nombre del archivo:      1 Base Agosto_BM_2025_extracted_281230.xlsx
+Tipo:                    BM
+Fecha:                   2025-10-16 15:02:39
+
+Registros iniciales:     281,230
+Registros procesados:    281,230
+Registros con errores:   1
+Diferencia:              0
+
+----------------------------------------------------------------------
+ERRORES DETECTADOS:
+----------------------------------------------------------------------
+• JSON irrecuperable: 1 registros
+  Razón: Formato de JSON corrupto o no parseable
+  Acción: Se omitieron estos registros del output
+
+======================================================================

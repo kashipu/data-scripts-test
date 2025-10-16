@@ -1,0 +1,141 @@
+2025-10-13 13:51:27,587 - INFO - Iniciando extracción - Modo: LIMITADO a 100 registros
+2025-10-13 13:51:27,588 - INFO - Archivos en tracking: 0
+2025-10-13 13:51:27,588 - INFO - Escaneando directorio: data-cruda
+2025-10-13 13:51:27,588 - INFO - Encontrado BM: data-cruda\Agosto\1 Base Agosto_BM_2025.xlsx
+2025-10-13 13:51:27,589 - INFO - Encontrado BV: data-cruda\Agosto\1 Base Agosto_BV_2025.xlsx
+2025-10-13 13:51:27,589 - INFO - Encontrado BM: data-cruda\Julio\1 Base Julio_BM_2025.xlsx
+2025-10-13 13:51:27,589 - INFO - Encontrado BV: data-cruda\Julio\1 Base julio_BV_2025.xlsx
+2025-10-13 13:51:27,590 - INFO - Encontrado BM: data-cruda\Junio\1 Base Junio_BM_2025.xlsx
+2025-10-13 13:51:27,590 - INFO - Encontrado BV: data-cruda\Junio\1 Base Junio_BV_2025.xlsx
+2025-10-13 13:51:27,590 - INFO - Encontrado BM: data-cruda\Septiembre\1 Base Sep_BM_2025.xlsx
+2025-10-13 13:51:27,590 - INFO - Encontrado BV: data-cruda\Septiembre\1 Base Sep_BV_2025.xlsx
+2025-10-13 13:51:27,591 - INFO - Iniciando extracción: data-cruda\Agosto\1 Base Agosto_BM_2025.xlsx
+2025-10-13 13:51:46,407 - INFO - 📋 Reporte de validación generado: 1 Base Agosto_BM_2025_extracted_100.validation
+2025-10-13 13:51:46,408 - INFO - 📄 Log individual generado: 1 Base Agosto_BM_2025_extracted_100.txt
+2025-10-13 13:51:46,408 - INFO - Extracción exitosa: datos_raw\1 Base Agosto_BM_2025_extracted_100.xlsx (100 registros)
+2025-10-13 13:51:46,452 - INFO - 📝 Archivo registrado en tracking: 1 Base Agosto_BM_2025.xlsx
+2025-10-13 13:51:46,452 - INFO - Iniciando extracción: data-cruda\Agosto\1 Base Agosto_BV_2025.xlsx
+2025-10-13 13:51:46,727 - INFO - 📋 Reporte de validación generado: 1 Base Agosto_BV_2025_extracted_100.validation
+2025-10-13 13:51:46,728 - INFO - 📄 Log individual generado: 1 Base Agosto_BV_2025_extracted_100.txt
+2025-10-13 13:51:46,728 - INFO - Extracción exitosa: datos_raw\1 Base Agosto_BV_2025_extracted_100.xlsx (100 registros)
+2025-10-13 13:51:46,729 - INFO - 📝 Archivo registrado en tracking: 1 Base Agosto_BV_2025.xlsx
+2025-10-13 13:51:46,730 - INFO - Iniciando extracción: data-cruda\Julio\1 Base Julio_BM_2025.xlsx
+2025-10-13 13:52:02,921 - INFO - 📋 Reporte de validación generado: 1 Base Julio_BM_2025_extracted_100.validation
+2025-10-13 13:52:02,922 - INFO - 📄 Log individual generado: 1 Base Julio_BM_2025_extracted_100.txt
+2025-10-13 13:52:02,922 - INFO - Extracción exitosa: datos_raw\1 Base Julio_BM_2025_extracted_100.xlsx (100 registros)
+2025-10-13 13:52:02,963 - INFO - 📝 Archivo registrado en tracking: 1 Base Julio_BM_2025.xlsx
+2025-10-13 13:52:02,963 - INFO - Iniciando extracción: data-cruda\Julio\1 Base julio_BV_2025.xlsx
+2025-10-13 13:52:03,246 - INFO - 📋 Reporte de validación generado: 1 Base julio_BV_2025_extracted_100.validation
+2025-10-13 13:52:03,247 - INFO - 📄 Log individual generado: 1 Base julio_BV_2025_extracted_100.txt
+2025-10-13 13:52:03,247 - INFO - Extracción exitosa: datos_raw\1 Base julio_BV_2025_extracted_100.xlsx (100 registros)
+2025-10-13 13:52:03,248 - INFO - 📝 Archivo registrado en tracking: 1 Base julio_BV_2025.xlsx
+2025-10-13 13:52:03,249 - INFO - Iniciando extracción: data-cruda\Junio\1 Base Junio_BM_2025.xlsx
+2025-10-13 13:52:15,337 - INFO - 📋 Reporte de validación generado: 1 Base Junio_BM_2025_extracted_100.validation
+2025-10-13 13:52:15,338 - INFO - 📄 Log individual generado: 1 Base Junio_BM_2025_extracted_100.txt
+2025-10-13 13:52:15,339 - INFO - Extracción exitosa: datos_raw\1 Base Junio_BM_2025_extracted_100.xlsx (100 registros)
+2025-10-13 13:52:15,368 - INFO - 📝 Archivo registrado en tracking: 1 Base Junio_BM_2025.xlsx
+2025-10-13 13:52:15,368 - INFO - Iniciando extracción: data-cruda\Junio\1 Base Junio_BV_2025.xlsx
+2025-10-13 13:52:15,656 - INFO - 📋 Reporte de validación generado: 1 Base Junio_BV_2025_extracted_100.validation
+2025-10-13 13:52:15,657 - INFO - 📄 Log individual generado: 1 Base Junio_BV_2025_extracted_100.txt
+2025-10-13 13:52:15,657 - INFO - Extracción exitosa: datos_raw\1 Base Junio_BV_2025_extracted_100.xlsx (100 registros)
+2025-10-13 13:52:15,658 - INFO - 📝 Archivo registrado en tracking: 1 Base Junio_BV_2025.xlsx
+2025-10-13 13:52:15,659 - INFO - Iniciando extracción: data-cruda\Septiembre\1 Base Sep_BM_2025.xlsx
+2025-10-13 13:52:32,887 - INFO - 📋 Reporte de validación generado: 1 Base Sep_BM_2025_extracted_100.validation
+2025-10-13 13:52:32,888 - INFO - 📄 Log individual generado: 1 Base Sep_BM_2025_extracted_100.txt
+2025-10-13 13:52:32,888 - INFO - Extracción exitosa: datos_raw\1 Base Sep_BM_2025_extracted_100.xlsx (100 registros)
+2025-10-13 13:52:32,928 - INFO - 📝 Archivo registrado en tracking: 1 Base Sep_BM_2025.xlsx
+2025-10-13 13:52:32,928 - INFO - Iniciando extracción: data-cruda\Septiembre\1 Base Sep_BV_2025.xlsx
+2025-10-13 13:52:33,202 - INFO - 📋 Reporte de validación generado: 1 Base Sep_BV_2025_extracted_100.validation
+2025-10-13 13:52:33,203 - INFO - 📄 Log individual generado: 1 Base Sep_BV_2025_extracted_100.txt
+2025-10-13 13:52:33,203 - INFO - Extracción exitosa: datos_raw\1 Base Sep_BV_2025_extracted_100.xlsx (100 registros)
+2025-10-13 13:52:33,205 - INFO - 📝 Archivo registrado en tracking: 1 Base Sep_BV_2025.xlsx
+2025-10-13 13:52:33,208 - INFO - Extracción completada: 8 archivos, 800 registros
+2025-10-13 14:06:58,853 - INFO - Iniciando extracción - Modo: LIMITADO a 100 registros
+2025-10-13 14:06:58,853 - INFO - Archivos en tracking: 0
+2025-10-13 14:06:58,854 - INFO - Escaneando directorio: data-cruda
+2025-10-13 14:06:58,854 - INFO - Encontrado BM: data-cruda\Agosto\1 Base Agosto_BM_2025.xlsx
+2025-10-13 14:06:58,854 - INFO - Encontrado BV: data-cruda\Agosto\1 Base Agosto_BV_2025.xlsx
+2025-10-13 14:06:58,855 - INFO - Encontrado BM: data-cruda\Julio\1 Base Julio_BM_2025.xlsx
+2025-10-13 14:06:58,855 - INFO - Encontrado BV: data-cruda\Julio\1 Base julio_BV_2025.xlsx
+2025-10-13 14:06:58,855 - INFO - Encontrado BM: data-cruda\Junio\1 Base Junio_BM_2025.xlsx
+2025-10-13 14:06:58,855 - INFO - Encontrado BV: data-cruda\Junio\1 Base Junio_BV_2025.xlsx
+2025-10-13 14:06:58,856 - INFO - Encontrado BM: data-cruda\Septiembre\1 Base Sep_BM_2025.xlsx
+2025-10-13 14:06:58,856 - INFO - Encontrado BV: data-cruda\Septiembre\1 Base Sep_BV_2025.xlsx
+2025-10-13 14:06:58,856 - INFO - Iniciando extracción: data-cruda\Agosto\1 Base Agosto_BM_2025.xlsx
+2025-10-13 14:07:16,914 - INFO - 📋 Reporte de validación generado: 1 Base Agosto_BM_2025_extracted_100.validation
+2025-10-13 14:07:16,914 - ERROR - Error en extracción de data-cruda\Agosto\1 Base Agosto_BM_2025.xlsx: 'filas_con_errores'
+2025-10-13 14:07:16,926 - INFO - Iniciando extracción: data-cruda\Agosto\1 Base Agosto_BV_2025.xlsx
+2025-10-13 14:07:17,193 - INFO - 📋 Reporte de validación generado: 1 Base Agosto_BV_2025_extracted_100.validation
+2025-10-13 14:07:17,193 - ERROR - Error en extracción de data-cruda\Agosto\1 Base Agosto_BV_2025.xlsx: 'filas_con_errores'
+2025-10-13 14:07:17,194 - INFO - Iniciando extracción: data-cruda\Julio\1 Base Julio_BM_2025.xlsx
+2025-10-13 14:07:33,483 - INFO - 📋 Reporte de validación generado: 1 Base Julio_BM_2025_extracted_100.validation
+2025-10-13 14:07:33,483 - ERROR - Error en extracción de data-cruda\Julio\1 Base Julio_BM_2025.xlsx: 'filas_con_errores'
+2025-10-13 14:07:33,494 - INFO - Iniciando extracción: data-cruda\Julio\1 Base julio_BV_2025.xlsx
+2025-10-13 14:07:33,753 - INFO - 📋 Reporte de validación generado: 1 Base julio_BV_2025_extracted_100.validation
+2025-10-13 14:07:33,753 - ERROR - Error en extracción de data-cruda\Julio\1 Base julio_BV_2025.xlsx: 'filas_con_errores'
+2025-10-13 14:07:33,754 - INFO - Iniciando extracción: data-cruda\Junio\1 Base Junio_BM_2025.xlsx
+2025-10-13 14:07:45,349 - INFO - 📋 Reporte de validación generado: 1 Base Junio_BM_2025_extracted_100.validation
+2025-10-13 14:07:45,350 - ERROR - Error en extracción de data-cruda\Junio\1 Base Junio_BM_2025.xlsx: 'filas_con_errores'
+2025-10-13 14:07:45,356 - INFO - Iniciando extracción: data-cruda\Junio\1 Base Junio_BV_2025.xlsx
+2025-10-13 14:07:45,603 - INFO - 📋 Reporte de validación generado: 1 Base Junio_BV_2025_extracted_100.validation
+2025-10-13 14:07:45,603 - ERROR - Error en extracción de data-cruda\Junio\1 Base Junio_BV_2025.xlsx: 'filas_con_errores'
+2025-10-13 14:07:45,604 - INFO - Iniciando extracción: data-cruda\Septiembre\1 Base Sep_BM_2025.xlsx
+2025-10-13 14:08:02,729 - INFO - 📋 Reporte de validación generado: 1 Base Sep_BM_2025_extracted_100.validation
+2025-10-13 14:08:02,729 - ERROR - Error en extracción de data-cruda\Septiembre\1 Base Sep_BM_2025.xlsx: 'filas_con_errores'
+2025-10-13 14:08:02,739 - INFO - Iniciando extracción: data-cruda\Septiembre\1 Base Sep_BV_2025.xlsx
+2025-10-13 14:08:02,999 - INFO - 📋 Reporte de validación generado: 1 Base Sep_BV_2025_extracted_100.validation
+2025-10-13 14:08:03,000 - ERROR - Error en extracción de data-cruda\Septiembre\1 Base Sep_BV_2025.xlsx: 'filas_con_errores'
+2025-10-13 14:08:03,001 - ERROR - Archivos con errores: 8
+2025-10-13 14:08:03,001 - WARNING - No se procesaron archivos
+2025-10-16 14:07:31,221 - INFO - Iniciando extracción - Modo: COMPLETO (sin límite)
+2025-10-16 14:07:31,221 - INFO - Archivos en tracking: 0
+2025-10-16 14:07:31,222 - INFO - Escaneando directorio: data-cruda
+2025-10-16 14:07:31,222 - INFO - Encontrado BM: data-cruda\Agosto\1 Base Agosto_BM_2025.xlsx
+2025-10-16 14:07:31,222 - INFO - Encontrado BV: data-cruda\Agosto\1 Base Agosto_BV_2025.xlsx
+2025-10-16 14:07:31,223 - INFO - Encontrado BM: data-cruda\Julio\1 Base Julio_BM_2025.xlsx
+2025-10-16 14:07:31,223 - INFO - Encontrado BV: data-cruda\Julio\1 Base julio_BV_2025.xlsx
+2025-10-16 14:07:31,223 - INFO - Encontrado BM: data-cruda\Junio\1 Base Junio_BM_2025.xlsx
+2025-10-16 14:07:31,224 - INFO - Encontrado BV: data-cruda\Junio\1 Base Junio_BV_2025.xlsx
+2025-10-16 14:07:31,224 - INFO - Encontrado BM: data-cruda\Septiembre\1 Base Sep_BM_2025.xlsx
+2025-10-16 14:07:31,224 - INFO - Encontrado BV: data-cruda\Septiembre\1 Base Sep_BV_2025.xlsx
+2025-10-16 14:07:31,225 - INFO - Iniciando extracción: data-cruda\Agosto\1 Base Agosto_BM_2025.xlsx
+2025-10-16 14:08:33,616 - INFO - 📋 Reporte de validación generado: 1 Base Agosto_BM_2025_extracted_281230.validation
+2025-10-16 14:08:33,617 - INFO - 📄 Log individual generado: 1 Base Agosto_BM_2025_extracted_281230.txt
+2025-10-16 14:08:33,617 - INFO - Extracción exitosa: datos_raw\1 Base Agosto_BM_2025_extracted_281230.xlsx (281,230 registros)
+2025-10-16 14:08:33,664 - INFO - 📝 Archivo registrado en tracking: 1 Base Agosto_BM_2025.xlsx
+2025-10-16 14:08:33,665 - INFO - Iniciando extracción: data-cruda\Agosto\1 Base Agosto_BV_2025.xlsx
+2025-10-16 14:08:34,385 - INFO - 📋 Reporte de validación generado: 1 Base Agosto_BV_2025_extracted_1904.validation
+2025-10-16 14:08:34,387 - INFO - 📄 Log individual generado: 1 Base Agosto_BV_2025_extracted_1904.txt
+2025-10-16 14:08:34,387 - INFO - Extracción exitosa: datos_raw\1 Base Agosto_BV_2025_extracted_1904.xlsx (1,904 registros)
+2025-10-16 14:08:34,388 - INFO - 📝 Archivo registrado en tracking: 1 Base Agosto_BV_2025.xlsx
+2025-10-16 14:08:34,389 - INFO - Iniciando extracción: data-cruda\Julio\1 Base Julio_BM_2025.xlsx
+2025-10-16 14:09:28,631 - INFO - 📋 Reporte de validación generado: 1 Base Julio_BM_2025_extracted_256529.validation
+2025-10-16 14:09:28,632 - INFO - 📄 Log individual generado: 1 Base Julio_BM_2025_extracted_256529.txt
+2025-10-16 14:09:28,632 - INFO - Extracción exitosa: datos_raw\1 Base Julio_BM_2025_extracted_256529.xlsx (256,529 registros)
+2025-10-16 14:09:28,673 - INFO - 📝 Archivo registrado en tracking: 1 Base Julio_BM_2025.xlsx
+2025-10-16 14:09:28,674 - INFO - Iniciando extracción: data-cruda\Julio\1 Base julio_BV_2025.xlsx
+2025-10-16 14:09:29,358 - INFO - 📋 Reporte de validación generado: 1 Base julio_BV_2025_extracted_1879.validation
+2025-10-16 14:09:29,359 - INFO - 📄 Log individual generado: 1 Base julio_BV_2025_extracted_1879.txt
+2025-10-16 14:09:29,359 - INFO - Extracción exitosa: datos_raw\1 Base julio_BV_2025_extracted_1879.xlsx (1,879 registros)
+2025-10-16 14:09:29,361 - INFO - 📝 Archivo registrado en tracking: 1 Base julio_BV_2025.xlsx
+2025-10-16 14:09:29,361 - INFO - Iniciando extracción: data-cruda\Junio\1 Base Junio_BM_2025.xlsx
+2025-10-16 14:10:06,661 - INFO - 📋 Reporte de validación generado: 1 Base Junio_BM_2025_extracted_195454.validation
+2025-10-16 14:10:06,662 - INFO - 📄 Log individual generado: 1 Base Junio_BM_2025_extracted_195454.txt
+2025-10-16 14:10:06,662 - INFO - Extracción exitosa: datos_raw\1 Base Junio_BM_2025_extracted_195454.xlsx (195,454 registros)
+2025-10-16 14:10:06,692 - INFO - 📝 Archivo registrado en tracking: 1 Base Junio_BM_2025.xlsx
+2025-10-16 14:10:06,693 - INFO - Iniciando extracción: data-cruda\Junio\1 Base Junio_BV_2025.xlsx
+2025-10-16 14:10:07,923 - INFO - 📋 Reporte de validación generado: 1 Base Junio_BV_2025_extracted_1891.validation
+2025-10-16 14:10:07,924 - INFO - 📄 Log individual generado: 1 Base Junio_BV_2025_extracted_1891.txt
+2025-10-16 14:10:07,924 - INFO - Extracción exitosa: datos_raw\1 Base Junio_BV_2025_extracted_1891.xlsx (1,891 registros)
+2025-10-16 14:10:07,925 - INFO - 📝 Archivo registrado en tracking: 1 Base Junio_BV_2025.xlsx
+2025-10-16 14:10:07,926 - INFO - Iniciando extracción: data-cruda\Septiembre\1 Base Sep_BM_2025.xlsx
+2025-10-16 14:11:06,848 - INFO - 📋 Reporte de validación generado: 1 Base Sep_BM_2025_extracted_280379.validation
+2025-10-16 14:11:06,849 - INFO - 📄 Log individual generado: 1 Base Sep_BM_2025_extracted_280379.txt
+2025-10-16 14:11:06,850 - INFO - Extracción exitosa: datos_raw\1 Base Sep_BM_2025_extracted_280379.xlsx (280,379 registros)
+2025-10-16 14:11:06,893 - INFO - 📝 Archivo registrado en tracking: 1 Base Sep_BM_2025.xlsx
+2025-10-16 14:11:06,894 - INFO - Iniciando extracción: data-cruda\Septiembre\1 Base Sep_BV_2025.xlsx
+2025-10-16 14:11:07,608 - INFO - 📋 Reporte de validación generado: 1 Base Sep_BV_2025_extracted_1931.validation
+2025-10-16 14:11:07,609 - INFO - 📄 Log individual generado: 1 Base Sep_BV_2025_extracted_1931.txt
+2025-10-16 14:11:07,609 - INFO - Extracción exitosa: datos_raw\1 Base Sep_BV_2025_extracted_1931.xlsx (1,931 registros)
+2025-10-16 14:11:07,611 - INFO - 📝 Archivo registrado en tracking: 1 Base Sep_BV_2025.xlsx
+2025-10-16 14:11:07,614 - INFO - Extracción completada: 8 archivos, 1,021,197 registros

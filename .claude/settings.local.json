@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(pip install:*)",
+      "Bash(git mv:*)",
+      "Bash(gh pr list:*)"
     ],
     "deny": [],
     "ask": []

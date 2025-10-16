@@ -1,0 +1,374 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Métricas NPS/CSAT - BM y BV</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            text-align: center;
+            padding: 20px;
+            background-color: #2c3e50;
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .table-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th {
+            background-color: #34495e;
+            color: white;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+            border: 1px solid #2c3e50;
+            position: sticky;
+            top: 0;
+        }
+        td {
+            padding: 10px 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f0f0f0;
+        }
+        .consolidated-row {
+            background-color: #3498db !important;
+            color: white;
+            font-weight: bold;
+        }
+        .consolidated-row td {
+            border-color: #2980b9;
+        }
+        .month-col {
+            background-color: #ecf0f1;
+            font-weight: 600;
+            text-align: left;
+            padding-left: 15px;
+        }
+        .number {
+            text-align: right;
+            padding-right: 15px;
+        }
+        .percentage {
+            color: #27ae60;
+            font-weight: 500;
+        }
+        .detractor {
+            color: #e74c3c;
+            font-weight: 500;
+        }
+        .neutral {
+            color: #f39c12;
+            font-weight: 500;
+        }
+        .promoter {
+            color: #27ae60;
+            font-weight: 500;
+        }
+        .section-header {
+            background-color: #2c3e50 !important;
+            color: white;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Métricas NPS/CSAT - Banco Móvil y Banco Virtual</h1>
+        <p>Análisis Detallado por Canal y Mes</p>
+        <p><strong>Período:</strong> 2025-05 a 2025-09 |
+           <strong>Total Registros:</strong> 1,021,197 |
+           <strong>Generado:</strong> 2025-10-16 15:31:42</p>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th rowspan="2" style="vertical-align: middle;">Mes</th>
+                    <th rowspan="2" style="vertical-align: middle;">Canal</th>
+                    <th colspan="2" class="section-header">Volumen General</th>
+                    <th colspan="8" class="section-header">Métricas NPS</th>
+                    <th colspan="4" class="section-header">Métricas CSAT</th>
+                </tr>
+                <tr>
+                    <!-- Volumen General -->
+                    <th>Vol. Total</th>
+                    <th>% del Total</th>
+
+                    <!-- NPS -->
+                    <th>Vol. NPS</th>
+                    <th>Promedio NPS</th>
+                    <th>Detractores</th>
+                    <th>Neutrales</th>
+                    <th>Promotores</th>
+                    <th>% Detractores</th>
+                    <th>% Neutrales</th>
+                    <th>% Promotores</th>
+
+                    <!-- CSAT -->
+                    <th>Vol. CSAT</th>
+                    <th>Promedio CSAT</th>
+                    <th>CSAT Mín</th>
+                    <th>CSAT Máx</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <td class="month-col">2025-05</td>
+                    <td style="text-align: center;"><span style="background-color: #3498db; color: white; padding: 2px 8px; border-radius: 3px; font-weight: bold; font-size: 11px;">BM</span></td>
+                    <td class="number">2,453</td>
+                    <td class="percentage">0.24%</td>
+
+                    <td class="number">1,102</td>
+                    <td class="number">8.66</td>
+                    <td class="number detractor">161</td>
+                    <td class="number neutral">101</td>
+                    <td class="number promoter">840</td>
+                    <td class="detractor">14.61%</td>
+                    <td class="neutral">9.17%</td>
+                    <td class="promoter">76.23%</td>
+
+                    <td class="number">1,300</td>
+                    <td class="number">4.35</td>
+                    <td class="number">-1.00</td>
+                    <td class="number">5.00</td>
+                </tr>
+            
+                <tr>
+                    <td class="month-col">2025-06</td>
+                    <td style="text-align: center;"><span style="background-color: #3498db; color: white; padding: 2px 8px; border-radius: 3px; font-weight: bold; font-size: 11px;">BM</span></td>
+                    <td class="number">195,557</td>
+                    <td class="percentage">19.15%</td>
+
+                    <td class="number">88,072</td>
+                    <td class="number">8.61</td>
+                    <td class="number detractor">12,689</td>
+                    <td class="number neutral">9,582</td>
+                    <td class="number promoter">65,801</td>
+                    <td class="detractor">14.41%</td>
+                    <td class="neutral">10.88%</td>
+                    <td class="promoter">74.71%</td>
+
+                    <td class="number">102,285</td>
+                    <td class="number">4.34</td>
+                    <td class="number">-1.00</td>
+                    <td class="number">5.00</td>
+                </tr>
+            
+                <tr>
+                    <td class="month-col">2025-06</td>
+                    <td style="text-align: center;"><span style="background-color: #1abc9c; color: white; padding: 2px 8px; border-radius: 3px; font-weight: bold; font-size: 11px;">BV</span></td>
+                    <td class="number">1,891</td>
+                    <td class="percentage">0.19%</td>
+
+                    <td class="number">1,891</td>
+                    <td class="number">8.87</td>
+                    <td class="number detractor">179</td>
+                    <td class="number neutral">248</td>
+                    <td class="number promoter">1,464</td>
+                    <td class="detractor">9.47%</td>
+                    <td class="neutral">13.11%</td>
+                    <td class="promoter">77.42%</td>
+
+                    <td class="number">-</td>
+                    <td class="number">-</td>
+                    <td class="number">-</td>
+                    <td class="number">-</td>
+                </tr>
+            
+                <tr>
+                    <td class="month-col">2025-07</td>
+                    <td style="text-align: center;"><span style="background-color: #3498db; color: white; padding: 2px 8px; border-radius: 3px; font-weight: bold; font-size: 11px;">BM</span></td>
+                    <td class="number">263,204</td>
+                    <td class="percentage">25.77%</td>
+
+                    <td class="number">117,508</td>
+                    <td class="number">8.46</td>
+                    <td class="number detractor">19,369</td>
+                    <td class="number neutral">13,033</td>
+                    <td class="number promoter">85,106</td>
+                    <td class="detractor">16.48%</td>
+                    <td class="neutral">11.09%</td>
+                    <td class="promoter">72.43%</td>
+
+                    <td class="number">139,538</td>
+                    <td class="number">4.27</td>
+                    <td class="number">-1.00</td>
+                    <td class="number">5.00</td>
+                </tr>
+            
+                <tr>
+                    <td class="month-col">2025-07</td>
+                    <td style="text-align: center;"><span style="background-color: #1abc9c; color: white; padding: 2px 8px; border-radius: 3px; font-weight: bold; font-size: 11px;">BV</span></td>
+                    <td class="number">1,879</td>
+                    <td class="percentage">0.18%</td>
+
+                    <td class="number">1,879</td>
+                    <td class="number">8.89</td>
+                    <td class="number detractor">178</td>
+                    <td class="number neutral">239</td>
+                    <td class="number promoter">1,462</td>
+                    <td class="detractor">9.47%</td>
+                    <td class="neutral">12.72%</td>
+                    <td class="promoter">77.81%</td>
+
+                    <td class="number">-</td>
+                    <td class="number">-</td>
+                    <td class="number">-</td>
+                    <td class="number">-</td>
+                </tr>
+            
+                <tr>
+                    <td class="month-col">2025-08</td>
+                    <td style="text-align: center;"><span style="background-color: #3498db; color: white; padding: 2px 8px; border-radius: 3px; font-weight: bold; font-size: 11px;">BM</span></td>
+                    <td class="number">275,764</td>
+                    <td class="percentage">27.00%</td>
+
+                    <td class="number">124,243</td>
+                    <td class="number">8.56</td>
+                    <td class="number detractor">18,911</td>
+                    <td class="number neutral">14,337</td>
+                    <td class="number promoter">90,995</td>
+                    <td class="detractor">15.22%</td>
+                    <td class="neutral">11.54%</td>
+                    <td class="promoter">73.24%</td>
+
+                    <td class="number">145,373</td>
+                    <td class="number">4.33</td>
+                    <td class="number">-1.00</td>
+                    <td class="number">5.00</td>
+                </tr>
+            
+                <tr>
+                    <td class="month-col">2025-08</td>
+                    <td style="text-align: center;"><span style="background-color: #1abc9c; color: white; padding: 2px 8px; border-radius: 3px; font-weight: bold; font-size: 11px;">BV</span></td>
+                    <td class="number">1,904</td>
+                    <td class="percentage">0.19%</td>
+
+                    <td class="number">1,904</td>
+                    <td class="number">8.81</td>
+                    <td class="number detractor">201</td>
+                    <td class="number neutral">242</td>
+                    <td class="number promoter">1,461</td>
+                    <td class="detractor">10.56%</td>
+                    <td class="neutral">12.71%</td>
+                    <td class="promoter">76.73%</td>
+
+                    <td class="number">-</td>
+                    <td class="number">-</td>
+                    <td class="number">-</td>
+                    <td class="number">-</td>
+                </tr>
+            
+                <tr>
+                    <td class="month-col">2025-09</td>
+                    <td style="text-align: center;"><span style="background-color: #3498db; color: white; padding: 2px 8px; border-radius: 3px; font-weight: bold; font-size: 11px;">BM</span></td>
+                    <td class="number">276,614</td>
+                    <td class="percentage">27.09%</td>
+
+                    <td class="number">127,735</td>
+                    <td class="number">8.61</td>
+                    <td class="number detractor">18,728</td>
+                    <td class="number neutral">14,483</td>
+                    <td class="number promoter">94,524</td>
+                    <td class="detractor">14.66%</td>
+                    <td class="neutral">11.34%</td>
+                    <td class="promoter">74.00%</td>
+
+                    <td class="number">143,140</td>
+                    <td class="number">4.37</td>
+                    <td class="number">-1.00</td>
+                    <td class="number">5.00</td>
+                </tr>
+            
+                <tr>
+                    <td class="month-col">2025-09</td>
+                    <td style="text-align: center;"><span style="background-color: #1abc9c; color: white; padding: 2px 8px; border-radius: 3px; font-weight: bold; font-size: 11px;">BV</span></td>
+                    <td class="number">1,931</td>
+                    <td class="percentage">0.19%</td>
+
+                    <td class="number">1,931</td>
+                    <td class="number">8.77</td>
+                    <td class="number detractor">214</td>
+                    <td class="number neutral">267</td>
+                    <td class="number promoter">1,450</td>
+                    <td class="detractor">11.08%</td>
+                    <td class="neutral">13.83%</td>
+                    <td class="promoter">75.09%</td>
+
+                    <td class="number">-</td>
+                    <td class="number">-</td>
+                    <td class="number">-</td>
+                    <td class="number">-</td>
+                </tr>
+            
+                <tr class="consolidated-row">
+                    <td style="text-align: left; padding-left: 15px;">TOTAL CONSOLIDADO</td>
+                    <td style="text-align: center;">BM+BV</td>
+                    <td class="number">1,021,197</td>
+                    <td>100.00%</td>
+
+                    <td class="number">466,265</td>
+                    <td class="number">8.56</td>
+                    <td class="number">70,630</td>
+                    <td class="number">52,532</td>
+                    <td class="number">343,103</td>
+                    <td>15.15%</td>
+                    <td>11.27%</td>
+                    <td>73.59%</td>
+
+                    <td class="number">531,636</td>
+                    <td class="number">4.33</td>
+                    <td class="number">-1.00</td>
+                    <td class="number">5.00</td>
+                </tr>
+            
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer">
+        <p>Tabla generada por visualize_nps.py | Base de datos: nps_analitycs</p>
+        <p>Datos extraídos de la tabla banco_movil_clean</p>
+    </div>
+</body>
+</html>

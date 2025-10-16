@@ -1,8 +1,51 @@
 #!/usr/bin/env python3
 """
-Limpiador de Datos NPS
-Procesa y limpia datos de NPS para el pipeline de producción
-Maneja estructuras diferentes de BM y BV
+======================================================================================
+SCRIPT: 2_limpieza.py
+======================================================================================
+PROPÓSITO:
+    Limpia y transforma los datos extraídos de encuestas NPS preparándolos para su
+    inserción en PostgreSQL. Maneja las estructuras diferentes de Banco Móvil (BM)
+    y Banco Virtual (BV).
+
+QUÉ HACE:
+    1. Lee archivos Excel desde 'datos_raw/' (generados por 1_extractor.py)
+    2. Corrige problemas de encoding UTF-8 (Ã³→ó, Ã¡→á, Ã©→é, etc.)
+    3. Convierte JSON malformado (comillas simples → comillas dobles)
+    4. **BM**: Expande el campo JSON 'answers' en columnas separadas (NPS, CSAT)
+    5. **BV**: Normaliza nombres de columnas y limpia URLs/feedback
+    6. Categoriza scores NPS (0-6: Detractor, 7-8: Neutral, 9-10: Promotor)
+    7. Remueve timezones de fechas para compatibilidad con Excel
+    8. Guarda datos limpios en 'datos_clean/' listos para inserción
+
+TRANSFORMACIONES PRINCIPALES:
+    - Encoding UTF-8: Corrige caracteres malformados en español
+    - JSON de respuestas (BM): Expande métricas anidadas en columnas planas
+    - Fechas: Normaliza formatos y remueve timezones
+    - NPS: Calcula categorías basadas en score (Detractor/Neutral/Promotor)
+
+ARCHIVOS DE ENTRADA:
+    datos_raw/Agosto_BM_2025_extracted_50000.xlsx
+    datos_raw/Agosto_BV_2025_extracted_200.xlsx
+
+ARCHIVOS DE SALIDA:
+    datos_clean/Agosto_BM_2025_extracted_50000_LIMPIO.xlsx
+    datos_clean/Agosto_BV_2025_extracted_200_LIMPIO.xlsx
+
+LOG:
+    data_cleaning.log - Registro detallado de todas las operaciones
+
+CUÁNDO EJECUTAR:
+    Después de ejecutar 1_extractor.py y antes de 3_insercion.py
+
+RESULTADO ESPERADO:
+    ✅ BM: Agosto_BM_2025_extracted_50000.xlsx → ...LIMPIO.xlsx (50,000 registros)
+    ✅ BV: Agosto_BV_2025_extracted_200.xlsx → ...LIMPIO.xlsx (200 registros)
+    📈 ESTADÍSTICAS: encoding_fixed: 1,250, json_fixed: 950, etc.
+
+SIGUIENTE PASO:
+    Ejecutar: python 3_insercion.py
+======================================================================================
 """
 
 import pandas as pd
@@ -26,8 +69,10 @@ class DataCleaner:
             'encoding_fixed': 0,
             'timezone_fixed': 0,
             'json_corrupted': 0,
-            'errors': 0
+            'errors': 0,
+            'registros_fallidos': []  # Lista de (fila, motivo)
         }
+        self._ultimo_resumen = {}  # Para generar log por archivo
         
         # Mapeo de caracteres mal codificados
         self.encoding_fixes = {
@@ -191,8 +236,10 @@ class DataCleaner:
     
     def clean_bm_data(self, df):
         """Limpia datos de BM (Banco Móvil)"""
-        self.logger.info(f"Limpiando datos BM: {len(df)} registros")
-        
+        entrada = len(df)
+        print(f"   ENTRADA: {entrada:,} registros")
+        self.logger.info(f"Limpiando datos BM: {entrada} registros")
+
         cleaned = df.copy()
         
         # Corrige encoding en columnas de texto
@@ -211,15 +258,20 @@ class DataCleaner:
         # Expande JSON de answers
         if 'answers' in cleaned.columns:
             self.logger.info("Expandiendo JSON de respuestas...")
-            
+
             expanded_data = []
             for idx, answers in enumerate(cleaned['answers']):
                 if idx % 100 == 0:
                     self.logger.info(f"  Procesado {idx}/{len(cleaned)}")
-                
+
                 parsed = self.parse_bm_answers(answers)
+
+                # Detectar si falló el parsing
+                if not parsed and not pd.isna(answers) and answers:
+                    self.stats['registros_fallidos'].append((idx + 2, "JSON irrecuperable"))  # +2 por header Excel
+
                 expanded_data.append(parsed)
-            
+
             # Combina datos expandidos
             expanded_df = pd.DataFrame(expanded_data)
             cleaned = pd.concat([cleaned, expanded_df], axis=1)
@@ -240,15 +292,33 @@ class DataCleaner:
         cleaned['file_type'] = 'BM'
         cleaned['month_year'] = cleaned['timestamp'].dt.strftime('%Y-%m') if 'timestamp' in cleaned.columns else '2024-08'
         
-        self.stats['bm_processed'] += len(cleaned)
-        self.logger.info(f"BM limpieza completada: {len(cleaned)} registros")
-        
+        salida = len(cleaned)
+        fallidos = len([f for f in self.stats['registros_fallidos']])
+
+        self.stats['bm_processed'] += salida
+        self.logger.info(f"BM limpieza completada: {salida} registros")
+
+        # Resumen compacto
+        print(f"\n   {'='*70}")
+        print(f"   ENTRADA: {entrada:,} | PROCESADOS: {salida:,} | FALLIDOS: {fallidos}")
+        print(f"   {'='*70}")
+
+        # Mostrar fallidos si existen
+        if fallidos > 0:
+            print(f"\n   ⚠️  REGISTROS FALLIDOS:")
+            for i, (fila, motivo) in enumerate(self.stats['registros_fallidos'][:10], 1):
+                print(f"   {i}. Fila {fila} → {motivo}")
+            if fallidos > 10:
+                print(f"   ... y {fallidos - 10} más (ver log)")
+
         return cleaned
     
     def clean_bv_data(self, df):
         """Limpia datos de BV (Banco Virtual)"""
-        self.logger.info(f"Limpiando datos BV: {len(df)} registros")
-        
+        entrada = len(df)
+        print(f"   ENTRADA: {entrada:,} registros")
+        self.logger.info(f"Limpiando datos BV: {entrada} registros")
+
         cleaned = df.copy()
         
         # Corrige encoding en todas las columnas de texto
@@ -319,9 +389,25 @@ class DataCleaner:
         cleaned['cleaned_date'] = datetime.now()
         cleaned['file_type'] = 'BV'
         
-        self.stats['bv_processed'] += len(cleaned)
-        self.logger.info(f"BV limpieza completada: {len(cleaned)} registros")
-        
+        salida = len(cleaned)
+        fallidos = len([f for f in self.stats['registros_fallidos']])
+
+        self.stats['bv_processed'] += salida
+        self.logger.info(f"BV limpieza completada: {salida} registros")
+
+        # Resumen compacto
+        print(f"\n   {'='*70}")
+        print(f"   ENTRADA: {entrada:,} | PROCESADOS: {salida:,} | FALLIDOS: {fallidos}")
+        print(f"   {'='*70}")
+
+        # Mostrar fallidos si existen
+        if fallidos > 0:
+            print(f"\n   ⚠️  REGISTROS FALLIDOS:")
+            for i, (fila, motivo) in enumerate(self.stats['registros_fallidos'][:10], 1):
+                print(f"   {i}. Fila {fila} → {motivo}")
+            if fallidos > 10:
+                print(f"   ... y {fallidos - 10} más (ver log)")
+
         return cleaned
     
     def clean_url(self, url):
@@ -467,9 +553,12 @@ def main():
     
     for data_file in data_files:
         print(f"\n📄 Procesando: {data_file.name}")
-        
+
+        # Resetear lista de fallidos por archivo
+        cleaner.stats['registros_fallidos'] = []
+
         clean_file, clean_df, file_type = cleaner.process_data_file(data_file)
-        
+
         if clean_file and clean_df is not None:
             # Analiza calidad
             cleaner.analyze_cleaned_data(clean_df, file_type)
@@ -477,15 +566,27 @@ def main():
     
     # Resumen final
     print(f"\n{'='*50}")
-    print("📊 RESUMEN DE LIMPIEZA DE DATOS:")
-    
+    print("📊 RESUMEN FINAL:")
+
     if results:
+        total_registros = sum(size for _, _, size, _ in results)
+        total_fallidos = cleaner.stats.get('json_corrupted', 0)
+        tasa = ((total_registros - total_fallidos) / total_registros * 100) if total_registros > 0 else 0
+
+        print(f"\n{'='*70}")
+        print(f"TOTAL: {total_registros:,} registros | PROCESADOS: {total_registros - total_fallidos:,} ({tasa:.1f}%) | FALLIDOS: {total_fallidos} ({100-tasa:.1f}%)")
+        print(f"{'='*70}\n")
+
         for original, cleaned, size, ftype in results:
             print(f"✅ {ftype}: {original.name} → {cleaned.name} ({size:,} registros)")
-        
+
         print(f"\n📈 ESTADÍSTICAS:")
         for key, value in cleaner.stats.items():
-            print(f"  {key}: {value:,}")
+            if key != 'registros_fallidos':  # No mostrar la lista completa
+                if isinstance(value, int):
+                    print(f"  {key}: {value:,}")
+                else:
+                    print(f"  {key}: {value}")
         
         print(f"\n🎯 SIGUIENTE PASO:")
         print("1. Revisar archivos en carpeta 'datos_raw_limpias/'")

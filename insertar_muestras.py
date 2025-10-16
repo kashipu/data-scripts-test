@@ -1,11 +1,56 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Script Optimizado: Insertar Datoss Limpias en PostgreSQL
-- Preserva TODOS los datos importantes (customer_id, answerDate, etc.)
-- Usa append para acumular históricos (no borra datos)
-- Procesa TODOS los archivos en datos_clean/ automáticamente
-- Agrega trazabilidad con source_file
+======================================================================================
+SCRIPT: 3_insercion.py
+======================================================================================
+PROPÓSITO:
+    Inserta datos limpios de encuestas NPS desde archivos Excel en las tablas de
+    PostgreSQL. Incluye prevención de duplicados en dos niveles (aplicación y BD).
+
+QUÉ HACE:
+    1. Lee archivos limpios desde 'datos_clean/' (generados por 2_limpieza.py)
+    2. Verifica si el archivo ya fue insertado previamente (prevención duplicados)
+    3. Filtra columnas según el esquema de cada tabla (BM o BV)
+    4. Inserta datos en PostgreSQL usando modo 'append' (acumula históricos)
+    5. Crea índices automáticamente para optimizar consultas
+    6. Registra source_file para trazabilidad
+    7. Maneja errores de integridad (UNIQUE constraints)
+
+TABLAS DE DESTINO:
+    - banco_movil_clean (BM): Datos de Banco Móvil con métricas NPS/CSAT expandidas
+    - banco_virtual_clean (BV): Datos de Banco Virtual con metadata de dispositivos
+
+PREVENCIÓN DE DUPLICADOS:
+    Nivel 1 (Aplicación): Verifica campo 'source_file' antes de insertar
+    Nivel 2 (Base de Datos): UNIQUE constraints rechazan duplicados
+
+CONSTRAINTS UNIQUE:
+    - banco_movil_clean: (record_id, source_file)
+    - banco_virtual_clean: (date_submitted, nps_score_bv, source_file)
+
+ÍNDICES CREADOS AUTOMÁTICAMENTE:
+    BM: nps_score, nps_category, month_year, source_file
+    BV: nps_score, device, country, source_file
+
+ARCHIVOS DE ENTRADA:
+    datos_clean/Agosto_BM_2025_extracted_50000_LIMPIO.xlsx
+    datos_clean/Agosto_BV_2025_extracted_200_LIMPIO.xlsx
+
+LOG:
+    insercion_datos.log - Registro detallado de inserciones y duplicados detectados
+
+CUÁNDO EJECUTAR:
+    Después de ejecutar 2_limpieza.py y antes de 4_visualizacion.py
+
+RESULTADO ESPERADO:
+    ✅ Insertados 50,000 registros en banco_movil_clean desde Agosto_BM_...LIMPIO.xlsx
+    ✅ Insertados 200 registros en banco_virtual_clean desde Agosto_BV_...LIMPIO.xlsx
+    ⚠️  Archivo ya insertado previamente (omitido)
+
+SIGUIENTE PASO:
+    Ejecutar: python 4_visualizacion.py
+======================================================================================
 """
 
 import pandas as pd

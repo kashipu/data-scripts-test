@@ -1,0 +1,34 @@
+================================================================================
+LOG DE EXTRACCIÓN - 1_extractor.py
+================================================================================
+
+Fecha de extracción: 2025-10-16 14:08:33
+Archivo original: 1 Base Agosto_BM_2025.xlsx
+Archivo de salida: 1 Base Agosto_BM_2025_extracted_281230.xlsx
+Tipo de archivo: BM
+
+ESTADÍSTICAS:
+  - Total registros en archivo original: 281,230
+  - Registros extraídos: 281,230
+  - Total columnas: 9
+
+COLUMNAS CLAVE DETECTADAS:
+  • timestamp
+  • answerDate
+  • answers
+  • NPS
+
+ADVERTENCIAS:
+  ⚠️  Encoding UTF-8 malformado detectado en columna 'answers'
+  ⚠️  2 registros duplicados detectados
+
+VALIDACIÓN DE CALIDAD:
+  - Tasa de calidad: 100.0%
+  - Estado: EXCELENTE
+  - Críticos: 0
+  - Advertencias: 1
+  - Duplicados reales: 2
+  📋 Ver detalles completos en archivo .validation
+
+ESTADO: ✅ Exitoso
+================================================================================

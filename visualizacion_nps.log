@@ -1,0 +1,79 @@
+2025-10-09 13:52:26,514 - INFO - ============================================================
+2025-10-09 13:52:26,514 - INFO - Dashboard NPS/CSAT - Banco M髒il
+2025-10-09 13:52:26,514 - INFO - ============================================================
+2025-10-09 13:52:26,592 - ERROR - No se pudieron cargar los datos.
+2025-10-09 13:53:21,802 - INFO - ============================================================
+2025-10-09 13:53:21,802 - INFO - Dashboard NPS/CSAT - Banco M贸vil
+2025-10-09 13:53:21,802 - INFO - ============================================================
+2025-10-09 13:53:21,836 - INFO - [OK] Conexi贸n establecida con PostgreSQL
+2025-10-09 13:53:21,873 - ERROR - [ERROR] Error al cargar datos: 'utf-8' codec can't decode byte 0xab in position 96: invalid start byte
+2025-10-09 13:53:21,874 - ERROR - No se pudieron cargar los datos.
+2025-10-09 13:53:55,048 - INFO - ============================================================
+2025-10-09 13:53:55,048 - INFO - Dashboard NPS/CSAT - Banco M贸vil
+2025-10-09 13:53:55,048 - INFO - ============================================================
+2025-10-09 13:53:55,083 - INFO - [OK] Conexi贸n establecida con PostgreSQL
+2025-10-09 13:53:55,374 - INFO - [OK] Datos cargados: 5 registros mensuales
+2025-10-09 13:53:55,374 - INFO -   Rango: 2025-05 a 2025-09
+2025-10-09 13:53:55,375 - INFO - Generando dashboard completo...
+2025-10-09 13:53:56,088 - INFO - [OK] Dashboard exportado a: visualizaciones/dashboard_nps.html
+2025-10-09 13:53:56,089 - INFO - ============================================================
+2025-10-09 13:53:56,089 - INFO - [OK] Dashboard generado exitosamente
+2025-10-09 13:53:56,089 - INFO -   Abrir en navegador: c:\Users\williamm\Desktop\datos\visualizaciones\dashboard_nps.html
+2025-10-09 13:53:56,089 - INFO - ============================================================
+2025-10-09 13:57:13,411 - INFO - ============================================================
+2025-10-09 13:57:13,412 - INFO - Dashboard NPS/CSAT - Banco M贸vil
+2025-10-09 13:57:13,412 - INFO - ============================================================
+2025-10-09 13:57:13,447 - INFO - [OK] Conexi贸n establecida con PostgreSQL
+2025-10-09 13:57:13,743 - INFO - [OK] Datos cargados: 5 registros mensuales
+2025-10-09 13:57:13,743 - INFO -   Rango: 2025-05 a 2025-09
+2025-10-09 13:57:13,744 - INFO - Generando dashboard completo...
+2025-10-09 13:57:13,867 - INFO - [OK] Dashboard exportado a: visualizaciones/dashboard_nps.html
+2025-10-09 13:57:13,868 - INFO - ============================================================
+2025-10-09 13:57:13,868 - INFO - [OK] Dashboard generado exitosamente
+2025-10-09 13:57:13,868 - INFO -   Abrir en navegador: C:\Users\williamm\Desktop\datos\visualizaciones\dashboard_nps.html
+2025-10-09 13:57:13,868 - INFO - ============================================================
+2025-10-09 14:02:03,464 - INFO - ============================================================
+2025-10-09 14:02:03,464 - INFO - Tabla NPS/CSAT - Banco Movil
+2025-10-09 14:02:03,464 - INFO - ============================================================
+2025-10-09 14:02:03,499 - INFO - [OK] Conexion establecida con PostgreSQL
+2025-10-09 14:02:03,788 - INFO - [OK] Datos cargados: 5 registros mensuales
+2025-10-09 14:02:03,788 - INFO -   Rango: 2025-05 a 2025-09
+2025-10-09 14:02:03,789 - INFO - Generando tabla HTML...
+2025-10-09 14:02:45,301 - INFO - ============================================================
+2025-10-09 14:02:45,302 - INFO - Tabla NPS/CSAT - Banco Movil
+2025-10-09 14:02:45,302 - INFO - ============================================================
+2025-10-09 14:02:45,337 - INFO - [OK] Conexion establecida con PostgreSQL
+2025-10-09 14:02:45,653 - INFO - [OK] Datos cargados: 5 registros mensuales
+2025-10-09 14:02:45,653 - INFO -   Rango: 2025-05 a 2025-09
+2025-10-09 14:02:45,654 - INFO - Generando tabla HTML...
+2025-10-09 14:02:45,655 - INFO - [OK] Tabla exportada a: visualizaciones/tabla_nps.html
+2025-10-09 14:02:45,656 - INFO - ============================================================
+2025-10-09 14:02:45,656 - INFO - [OK] Tabla generada exitosamente
+2025-10-09 14:02:45,656 - INFO -   Abrir en navegador: c:\Users\williamm\Desktop\datos\visualizaciones\tabla_nps.html
+2025-10-09 14:02:45,656 - INFO - ============================================================
+2025-10-16 15:28:25,303 - INFO - ============================================================
+2025-10-16 15:28:25,303 - INFO - Tabla NPS/CSAT - Banco Movil
+2025-10-16 15:28:25,303 - INFO - ============================================================
+2025-10-16 15:28:25,338 - INFO - [OK] Conexion establecida con PostgreSQL
+2025-10-16 15:28:25,644 - INFO - [OK] Datos cargados: 9 registros (BM + BV)
+2025-10-16 15:28:25,644 - INFO -   BM: 5 meses, BV: 4 meses
+2025-10-16 15:28:25,644 - INFO -   Rango: 2025-05 a 2025-09
+2025-10-16 15:28:25,645 - INFO - Generando tabla HTML...
+2025-10-16 15:28:25,646 - INFO - [OK] Tabla exportada a: visualizaciones/tabla_nps.html
+2025-10-16 15:28:25,646 - INFO - ============================================================
+2025-10-16 15:28:25,646 - INFO - [OK] Tabla generada exitosamente
+2025-10-16 15:28:25,646 - INFO -   Abrir en navegador: c:\Users\williamm\Desktop\datos\visualizaciones\tabla_nps.html
+2025-10-16 15:28:25,647 - INFO - ============================================================
+2025-10-16 15:31:42,179 - INFO - ============================================================
+2025-10-16 15:31:42,179 - INFO - Tabla NPS/CSAT - Banco Movil
+2025-10-16 15:31:42,180 - INFO - ============================================================
+2025-10-16 15:31:42,219 - INFO - [OK] Conexion establecida con PostgreSQL
+2025-10-16 15:31:42,519 - INFO - [OK] Datos cargados: 9 registros (BM + BV)
+2025-10-16 15:31:42,519 - INFO -   BM: 5 meses, BV: 4 meses
+2025-10-16 15:31:42,519 - INFO -   Rango: 2025-05 a 2025-09
+2025-10-16 15:31:42,520 - INFO - Generando tabla HTML...
+2025-10-16 15:31:42,522 - INFO - [OK] Tabla exportada a: visualizaciones/tabla_nps.html
+2025-10-16 15:31:42,522 - INFO - ============================================================
+2025-10-16 15:31:42,522 - INFO - [OK] Tabla generada exitosamente
+2025-10-16 15:31:42,522 - INFO -   Abrir en navegador: C:\Users\williamm\Desktop\datos\visualizaciones\tabla_nps.html
+2025-10-16 15:31:42,522 - INFO - ============================================================
