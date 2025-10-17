@@ -53,7 +53,7 @@ REQUISITOS:
 
 import pandas as pd
 import numpy as np
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from datetime import datetime
 import argparse
 import os
@@ -79,7 +79,7 @@ DB_CONFIG = {
     'password': 'postgres'  # ACTUALIZAR ESTE VALOR
 }
 
-# Queries para BM y BV por separado
+# Queries para BM y BV por separado con análisis de pérdida de datos
 QUERY_BM_METRICAS = """
 SELECT
     month_year,
@@ -102,7 +102,19 @@ SELECT
     COUNT(csat_satisfaccion_score) as volumen_csat,
     ROUND(AVG(csat_satisfaccion_score)::numeric, 2) as promedio_csat,
     MIN(csat_satisfaccion_score) as csat_minimo,
-    MAX(csat_satisfaccion_score) as csat_maximo
+    MAX(csat_satisfaccion_score) as csat_maximo,
+
+    -- ANÁLISIS DE PÉRDIDA DE DATOS
+    COUNT(*) - COUNT(nps_recomendacion_score) as registros_sin_nps,
+    COUNT(*) - COUNT(csat_satisfaccion_score) as registros_sin_csat,
+    ROUND((COUNT(*) - COUNT(nps_recomendacion_score)) * 100.0 / NULLIF(COUNT(*), 0), 2) as porc_perdida_nps,
+    ROUND((COUNT(*) - COUNT(csat_satisfaccion_score)) * 100.0 / NULLIF(COUNT(*), 0), 2) as porc_perdida_csat,
+
+    -- DISTRIBUCIÓN COMPLETA (tiene NPS, tiene CSAT, tiene ambos, no tiene ninguno)
+    COUNT(CASE WHEN nps_recomendacion_score IS NOT NULL AND csat_satisfaccion_score IS NOT NULL THEN 1 END) as tiene_ambos,
+    COUNT(CASE WHEN nps_recomendacion_score IS NOT NULL AND csat_satisfaccion_score IS NULL THEN 1 END) as solo_nps,
+    COUNT(CASE WHEN nps_recomendacion_score IS NULL AND csat_satisfaccion_score IS NOT NULL THEN 1 END) as solo_csat,
+    COUNT(CASE WHEN nps_recomendacion_score IS NULL AND csat_satisfaccion_score IS NULL THEN 1 END) as sin_metricas
 
 FROM banco_movil_clean
 WHERE month_year IS NOT NULL
@@ -132,7 +144,19 @@ SELECT
     0 as volumen_csat,
     NULL as promedio_csat,
     NULL as csat_minimo,
-    NULL as csat_maximo
+    NULL as csat_maximo,
+
+    -- ANÁLISIS DE PÉRDIDA DE DATOS (BV solo tiene NPS)
+    COUNT(*) - COUNT(nps_score) as registros_sin_nps,
+    COUNT(*) as registros_sin_csat,  -- BV no tiene CSAT
+    ROUND((COUNT(*) - COUNT(nps_score)) * 100.0 / NULLIF(COUNT(*), 0), 2) as porc_perdida_nps,
+    100.0 as porc_perdida_csat,  -- BV no tiene CSAT = 100% pérdida
+
+    -- DISTRIBUCIÓN COMPLETA (BV no tiene CSAT)
+    0 as tiene_ambos,
+    COUNT(CASE WHEN nps_score IS NOT NULL THEN 1 END) as solo_nps,
+    0 as solo_csat,
+    COUNT(CASE WHEN nps_score IS NULL THEN 1 END) as sin_metricas
 
 FROM banco_virtual_clean
 WHERE month_year IS NOT NULL
@@ -148,6 +172,8 @@ class NPSTableVisualization:
         self.db_config = db_config
         self.engine = None
         self.df = None
+        self.df_bm = None
+        self.df_bv = None
         self.df_consolidated = None
 
     def connect(self):
@@ -168,61 +194,71 @@ class NPSTableVisualization:
     def load_data(self, month_filter=None):
         """Carga datos desde BM y BV"""
         try:
+            # Cargar BM
+            query_bm = QUERY_BM_METRICAS
+            if month_filter:
+                query_bm = query_bm.replace(
+                    "WHERE month_year IS NOT NULL",
+                    f"WHERE month_year = '{month_filter}'"
+                )
+
+            logger.info("Cargando datos de Banco Móvil...")
             with self.engine.connect() as conn:
-                # Cargar BM
-                query_bm = QUERY_BM_METRICAS
-                if month_filter:
-                    query_bm = query_bm.replace(
-                        "WHERE month_year IS NOT NULL",
-                        f"WHERE month_year = '{month_filter}'"
-                    )
-                df_bm = pd.read_sql(query_bm, conn)
+                self.df_bm = pd.read_sql(text(query_bm), conn).copy()
 
-                # Cargar BV
-                query_bv = QUERY_BV_METRICAS
-                if month_filter:
-                    query_bv = query_bv.replace(
-                        "WHERE month_year IS NOT NULL",
-                        f"WHERE month_year = '{month_filter}'"
-                    )
-                df_bv = pd.read_sql(query_bv, conn)
+            # Cargar BV
+            query_bv = QUERY_BV_METRICAS
+            if month_filter:
+                query_bv = query_bv.replace(
+                    "WHERE month_year IS NOT NULL",
+                    f"WHERE month_year = '{month_filter}'"
+                )
 
-                # Combinar ambos DataFrames
-                self.df = pd.concat([df_bm, df_bv], ignore_index=True)
+            logger.info("Cargando datos de Banco Virtual...")
+            with self.engine.connect() as conn:
+                self.df_bv = pd.read_sql(text(query_bv), conn).copy()
 
-                # Ordenar por mes y canal
-                self.df = self.df.sort_values(['month_year', 'canal'])
+            # Combinar ambos DataFrames
+            logger.info("Combinando datos...")
+            self.df = pd.concat([self.df_bm, self.df_bv], ignore_index=True).copy()
 
-                # Calcular porcentaje del total
-                total_general = self.df['volumen_total_mes'].sum()
-                self.df['porcentaje_del_total'] = (self.df['volumen_total_mes'] / total_general * 100).round(2)
+            # Ordenar por mes y canal
+            self.df = self.df.sort_values(['month_year', 'canal']).reset_index(drop=True)
 
-                logger.info(f"[OK] Datos cargados: {len(self.df)} registros (BM + BV)")
-                logger.info(f"  BM: {len(df_bm)} meses, BV: {len(df_bv)} meses")
-                if len(self.df) > 0:
-                    logger.info(f"  Rango: {self.df['month_year'].min()} a {self.df['month_year'].max()}")
+            # Calcular porcentaje del total
+            total_general = self.df['volumen_total_mes'].sum()
+            self.df['porcentaje_del_total'] = (self.df['volumen_total_mes'] / total_general * 100).round(2)
 
-                # Calcular totales consolidados
-                self._calculate_consolidated()
+            logger.info(f"[OK] Datos cargados: {len(self.df)} registros (BM + BV)")
+            logger.info(f"  BM: {len(self.df_bm)} meses, BV: {len(self.df_bv)} meses")
+            if len(self.df) > 0:
+                logger.info(f"  Rango: {self.df['month_year'].min()} a {self.df['month_year'].max()}")
 
-                return True
+            # Calcular totales consolidados
+            self._calculate_consolidated()
+
+            return True
         except Exception as e:
             logger.error(f"[ERROR] Error al cargar datos: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
             return False
 
     def _calculate_consolidated(self):
-        """Calcula fila de totales consolidados"""
+        """Calcula fila de totales consolidados con análisis de pérdida"""
         total_volumen = self.df['volumen_total_mes'].sum()
 
         # Promedios ponderados
-        promedio_nps = (self.df['promedio_nps'] * self.df['volumen_nps']).sum() / self.df['volumen_nps'].sum()
-        promedio_csat = (self.df['promedio_csat'] * self.df['volumen_csat']).sum() / self.df['volumen_csat'].sum()
+        total_volumen_nps = self.df['volumen_nps'].sum()
+        total_volumen_csat = self.df['volumen_csat'].sum()
+
+        promedio_nps = (self.df['promedio_nps'] * self.df['volumen_nps']).sum() / total_volumen_nps if total_volumen_nps > 0 else 0
+        promedio_csat = (self.df['promedio_csat'] * self.df['volumen_csat']).sum() / total_volumen_csat if total_volumen_csat > 0 else 0
 
         # Totales de categorías
         total_detractores = self.df['nps_detractores'].sum()
         total_neutrales = self.df['nps_neutrales'].sum()
         total_promotores = self.df['nps_promotores'].sum()
-        total_volumen_nps = self.df['volumen_nps'].sum()
 
         # Porcentajes totales
         porc_detractores = (total_detractores / total_volumen_nps * 100) if total_volumen_nps > 0 else 0
@@ -232,6 +268,18 @@ class NPSTableVisualization:
         # CSAT min/max globales
         csat_min = self.df['csat_minimo'].min()
         csat_max = self.df['csat_maximo'].max()
+
+        # ANÁLISIS DE PÉRDIDA
+        total_sin_nps = self.df['registros_sin_nps'].sum()
+        total_sin_csat = self.df['registros_sin_csat'].sum()
+        porc_perdida_nps = (total_sin_nps / total_volumen * 100) if total_volumen > 0 else 0
+        porc_perdida_csat = (total_sin_csat / total_volumen * 100) if total_volumen > 0 else 0
+
+        # DISTRIBUCIÓN COMPLETA
+        total_ambos = self.df['tiene_ambos'].sum()
+        total_solo_nps = self.df['solo_nps'].sum()
+        total_solo_csat = self.df['solo_csat'].sum()
+        total_sin_metricas = self.df['sin_metricas'].sum()
 
         self.df_consolidated = {
             'month_year': 'TOTAL CONSOLIDADO',
@@ -245,31 +293,43 @@ class NPSTableVisualization:
             'nps_porc_detractores': round(porc_detractores, 2),
             'nps_porc_neutrales': round(porc_neutrales, 2),
             'nps_porc_promotores': round(porc_promotores, 2),
-            'volumen_csat': self.df['volumen_csat'].sum(),
+            'volumen_csat': total_volumen_csat,
             'promedio_csat': round(promedio_csat, 2),
             'csat_minimo': csat_min,
-            'csat_maximo': csat_max
+            'csat_maximo': csat_max,
+            'registros_sin_nps': total_sin_nps,
+            'registros_sin_csat': total_sin_csat,
+            'porc_perdida_nps': round(porc_perdida_nps, 2),
+            'porc_perdida_csat': round(porc_perdida_csat, 2),
+            'tiene_ambos': total_ambos,
+            'solo_nps': total_solo_nps,
+            'solo_csat': total_solo_csat,
+            'sin_metricas': total_sin_metricas
         }
 
     def generate_html_table(self):
-        """Genera tabla HTML con los datos"""
+        """Genera tabla HTML con tablas separadas por métrica"""
         logger.info("Generando tabla HTML...")
 
-        # Crear HTML
         html_parts = []
 
-        # Header
-        # Generar header HTML con CSS
+        # Calcular totales por canal
+        total_bm = self.df_bm['volumen_total_mes'].sum() if self.df_bm is not None and len(self.df_bm) > 0 else 0
+        total_bv = self.df_bv['volumen_total_mes'].sum() if self.df_bv is not None and len(self.df_bv) > 0 else 0
+        total_general = total_bm + total_bv
+
         periodo = f"{self.df['month_year'].min()} a {self.df['month_year'].max()}"
-        total = self.df['volumen_total_mes'].sum()
         fecha = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
+        c = self.df_consolidated
+
+        # Estilos CSS
         html_parts.append(f"""
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Métricas NPS/CSAT - BM y BV</title>
+    <title>Métricas NPS/CSAT - Análisis Completo por Canal</title>
     <style>
         body {{
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -293,12 +353,23 @@ class NPSTableVisualization:
             font-size: 14px;
             opacity: 0.9;
         }}
+        .section-title {{
+            text-align: center;
+            background-color: #34495e;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 30px 0 15px 0;
+            font-size: 20px;
+            font-weight: bold;
+        }}
         .table-container {{
             background-color: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             overflow-x: auto;
+            margin-bottom: 20px;
         }}
         table {{
             width: 100%;
@@ -312,8 +383,6 @@ class NPSTableVisualization:
             text-align: center;
             font-weight: 600;
             border: 1px solid #2c3e50;
-            position: sticky;
-            top: 0;
         }}
         td {{
             padding: 10px 8px;
@@ -326,12 +395,12 @@ class NPSTableVisualization:
         tr:hover {{
             background-color: #f0f0f0;
         }}
-        .consolidated-row {{
+        .total-row {{
             background-color: #3498db !important;
             color: white;
             font-weight: bold;
         }}
-        .consolidated-row td {{
+        .total-row td {{
             border-color: #2980b9;
         }}
         .month-col {{
@@ -343,10 +412,6 @@ class NPSTableVisualization:
         .number {{
             text-align: right;
             padding-right: 15px;
-        }}
-        .percentage {{
-            color: #27ae60;
-            font-weight: 500;
         }}
         .detractor {{
             color: #e74c3c;
@@ -360,12 +425,42 @@ class NPSTableVisualization:
             color: #27ae60;
             font-weight: 500;
         }}
-        .section-header {{
-            background-color: #2c3e50 !important;
+        .loss {{
+            color: #e74c3c;
+            font-weight: 600;
+        }}
+        .badge-bm {{
+            background-color: #3498db;
             color: white;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-weight: bold;
             font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        }}
+        .badge-bv {{
+            background-color: #1abc9c;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 11px;
+        }}
+        .summary-box {{
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }}
+        .summary-box h3 {{
+            margin-top: 0;
+            color: #2c3e50;
+        }}
+        .summary-item {{
+            display: inline-block;
+            margin: 10px 20px 10px 0;
+        }}
+        .summary-item strong {{
+            color: #2c3e50;
         }}
         .footer {{
             text-align: center;
@@ -377,30 +472,49 @@ class NPSTableVisualization:
 </head>
 <body>
     <div class="header">
-        <h1>Métricas NPS/CSAT - Banco Móvil y Banco Virtual</h1>
-        <p>Análisis Detallado por Canal y Mes</p>
-        <p><strong>Período:</strong> {periodo} |
-           <strong>Total Registros:</strong> {total:,} |
-           <strong>Generado:</strong> {fecha}</p>
+        <h1>Análisis Completo de Métricas NPS y CSAT</h1>
+        <p>Distribución 100% de Datos por Canal y Métrica</p>
+        <p><strong>Período:</strong> {periodo} | <strong>Total Registros:</strong> {total_general:,} | <strong>Generado:</strong> {fecha}</p>
+        <p><span class="badge-bm">BM: {total_bm:,}</span> <span class="badge-bv">BV: {total_bv:,}</span></p>
     </div>
 
+    <div class="summary-box">
+        <h3>📊 Resumen Ejecutivo - Distribución del 100% de los Datos</h3>
+        <div class="summary-item">
+            <strong>Total Registros:</strong> {int(c['volumen_total_mes']):,}
+        </div>
+        <div class="summary-item">
+            <strong>Con NPS:</strong> {int(c['volumen_nps']):,} ({100-c['porc_perdida_nps']:.2f}%)
+        </div>
+        <div class="summary-item">
+            <strong>Con CSAT:</strong> {int(c['volumen_csat']):,} ({100-c['porc_perdida_csat']:.2f}%)
+        </div>
+        <br>
+        <div class="summary-item">
+            <strong style="color: #27ae60;">Ambas Métricas (NPS+CSAT):</strong> {int(c['tiene_ambos']):,} ({c['tiene_ambos']/c['volumen_total_mes']*100:.2f}%)
+        </div>
+        <div class="summary-item">
+            <strong style="color: #3498db;">Solo NPS:</strong> {int(c['solo_nps']):,} ({c['solo_nps']/c['volumen_total_mes']*100:.2f}%)
+        </div>
+        <div class="summary-item">
+            <strong style="color: #f39c12;">Solo CSAT:</strong> {int(c['solo_csat']):,} ({c['solo_csat']/c['volumen_total_mes']*100:.2f}%)
+        </div>
+        <div class="summary-item">
+            <strong style="color: #e74c3c;">Sin Métricas:</strong> {int(c['sin_metricas']):,} ({c['sin_metricas']/c['volumen_total_mes']*100:.2f}%)
+        </div>
+    </div>
+""")
+
+        # TABLA 1: NPS - BANCO MÓVIL
+        html_parts.append("""
+    <div class="section-title">📱 Métrica NPS - Banco Móvil (BM)</div>
     <div class="table-container">
         <table>
             <thead>
                 <tr>
-                    <th rowspan="2" style="vertical-align: middle;">Mes</th>
-                    <th rowspan="2" style="vertical-align: middle;">Canal</th>
-                    <th colspan="2" class="section-header">Volumen General</th>
-                    <th colspan="8" class="section-header">Métricas NPS</th>
-                    <th colspan="4" class="section-header">Métricas CSAT</th>
-                </tr>
-                <tr>
-                    <!-- Volumen General -->
-                    <th>Vol. Total</th>
-                    <th>% del Total</th>
-
-                    <!-- NPS -->
-                    <th>Vol. NPS</th>
+                    <th>Mes</th>
+                    <th>Total Registros</th>
+                    <th>Con NPS</th>
                     <th>Promedio NPS</th>
                     <th>Detractores</th>
                     <th>Neutrales</th>
@@ -408,34 +522,18 @@ class NPSTableVisualization:
                     <th>% Detractores</th>
                     <th>% Neutrales</th>
                     <th>% Promotores</th>
-
-                    <!-- CSAT -->
-                    <th>Vol. CSAT</th>
-                    <th>Promedio CSAT</th>
-                    <th>CSAT Mín</th>
-                    <th>CSAT Máx</th>
+                    <th>Sin NPS</th>
+                    <th>% Pérdida</th>
                 </tr>
             </thead>
             <tbody>
 """)
 
-        # Filas de datos mensuales
-        for _, row in self.df.iterrows():
-            canal_badge = f'<span style="background-color: #3498db; color: white; padding: 2px 8px; border-radius: 3px; font-weight: bold; font-size: 11px;">{row["canal"]}</span>' if row['canal'] == 'BM' else f'<span style="background-color: #1abc9c; color: white; padding: 2px 8px; border-radius: 3px; font-weight: bold; font-size: 11px;">{row["canal"]}</span>'
-
-            # Formatear CSAT (puede ser NULL para BV)
-            csat_vol = f"{int(row['volumen_csat']):,}" if row['volumen_csat'] > 0 else "-"
-            csat_prom = f"{row['promedio_csat']:.2f}" if pd.notna(row['promedio_csat']) else "-"
-            csat_min = f"{row['csat_minimo']:.2f}" if pd.notna(row['csat_minimo']) else "-"
-            csat_max = f"{row['csat_maximo']:.2f}" if pd.notna(row['csat_maximo']) else "-"
-
+        for _, row in self.df_bm.iterrows():
             html_parts.append(f"""
                 <tr>
                     <td class="month-col">{row['month_year']}</td>
-                    <td style="text-align: center;">{canal_badge}</td>
                     <td class="number">{int(row['volumen_total_mes']):,}</td>
-                    <td class="percentage">{row['porcentaje_del_total']:.2f}%</td>
-
                     <td class="number">{int(row['volumen_nps']):,}</td>
                     <td class="number">{row['promedio_nps']:.2f}</td>
                     <td class="number detractor">{int(row['nps_detractores']):,}</td>
@@ -444,53 +542,248 @@ class NPSTableVisualization:
                     <td class="detractor">{row['nps_porc_detractores']:.2f}%</td>
                     <td class="neutral">{row['nps_porc_neutrales']:.2f}%</td>
                     <td class="promoter">{row['nps_porc_promotores']:.2f}%</td>
-
-                    <td class="number">{csat_vol}</td>
-                    <td class="number">{csat_prom}</td>
-                    <td class="number">{csat_min}</td>
-                    <td class="number">{csat_max}</td>
+                    <td class="number loss">{int(row['registros_sin_nps']):,}</td>
+                    <td class="loss">{row['porc_perdida_nps']:.2f}%</td>
                 </tr>
-            """)
+""")
 
-        # Fila consolidada
-        c = self.df_consolidated
-        csat_vol_cons = f"{int(c['volumen_csat']):,}" if c['volumen_csat'] > 0 else "-"
-        csat_prom_cons = f"{c['promedio_csat']:.2f}" if pd.notna(c['promedio_csat']) and c['volumen_csat'] > 0 else "-"
-        csat_min_cons = f"{c['csat_minimo']:.2f}" if pd.notna(c['csat_minimo']) else "-"
-        csat_max_cons = f"{c['csat_maximo']:.2f}" if pd.notna(c['csat_maximo']) else "-"
+        # Total BM NPS
+        total_bm_nps = self.df_bm['volumen_nps'].sum()
+        total_bm_regs = self.df_bm['volumen_total_mes'].sum()
+        total_bm_sin_nps = self.df_bm['registros_sin_nps'].sum()
+        total_bm_det = self.df_bm['nps_detractores'].sum()
+        total_bm_neu = self.df_bm['nps_neutrales'].sum()
+        total_bm_pro = self.df_bm['nps_promotores'].sum()
+        prom_bm_nps = (self.df_bm['promedio_nps'] * self.df_bm['volumen_nps']).sum() / total_bm_nps if total_bm_nps > 0 else 0
 
         html_parts.append(f"""
-                <tr class="consolidated-row">
-                    <td style="text-align: left; padding-left: 15px;">{c['month_year']}</td>
-                    <td style="text-align: center;">BM+BV</td>
-                    <td class="number">{int(c['volumen_total_mes']):,}</td>
-                    <td>{c['porcentaje_del_total']:.2f}%</td>
-
-                    <td class="number">{int(c['volumen_nps']):,}</td>
-                    <td class="number">{c['promedio_nps']:.2f}</td>
-                    <td class="number">{int(c['nps_detractores']):,}</td>
-                    <td class="number">{int(c['nps_neutrales']):,}</td>
-                    <td class="number">{int(c['nps_promotores']):,}</td>
-                    <td>{c['nps_porc_detractores']:.2f}%</td>
-                    <td>{c['nps_porc_neutrales']:.2f}%</td>
-                    <td>{c['nps_porc_promotores']:.2f}%</td>
-
-                    <td class="number">{csat_vol_cons}</td>
-                    <td class="number">{csat_prom_cons}</td>
-                    <td class="number">{csat_min_cons}</td>
-                    <td class="number">{csat_max_cons}</td>
+                <tr class="total-row">
+                    <td style="text-align: left; padding-left: 15px;">TOTAL BM</td>
+                    <td class="number">{int(total_bm_regs):,}</td>
+                    <td class="number">{int(total_bm_nps):,}</td>
+                    <td class="number">{prom_bm_nps:.2f}</td>
+                    <td class="number">{int(total_bm_det):,}</td>
+                    <td class="number">{int(total_bm_neu):,}</td>
+                    <td class="number">{int(total_bm_pro):,}</td>
+                    <td>{total_bm_det/total_bm_nps*100:.2f}%</td>
+                    <td>{total_bm_neu/total_bm_nps*100:.2f}%</td>
+                    <td>{total_bm_pro/total_bm_nps*100:.2f}%</td>
+                    <td class="number">{int(total_bm_sin_nps):,}</td>
+                    <td>{total_bm_sin_nps/total_bm_regs*100:.2f}%</td>
                 </tr>
-            """)
-
-        # Footer
-        html_parts.append(f"""
             </tbody>
         </table>
     </div>
+""")
 
+        # TABLA 2: NPS - BANCO VIRTUAL
+        html_parts.append("""
+    <div class="section-title">💻 Métrica NPS - Banco Virtual (BV)</div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Mes</th>
+                    <th>Total Registros</th>
+                    <th>Con NPS</th>
+                    <th>Promedio NPS</th>
+                    <th>Detractores</th>
+                    <th>Neutrales</th>
+                    <th>Promotores</th>
+                    <th>% Detractores</th>
+                    <th>% Neutrales</th>
+                    <th>% Promotores</th>
+                    <th>Sin NPS</th>
+                    <th>% Pérdida</th>
+                </tr>
+            </thead>
+            <tbody>
+""")
+
+        for _, row in self.df_bv.iterrows():
+            html_parts.append(f"""
+                <tr>
+                    <td class="month-col">{row['month_year']}</td>
+                    <td class="number">{int(row['volumen_total_mes']):,}</td>
+                    <td class="number">{int(row['volumen_nps']):,}</td>
+                    <td class="number">{row['promedio_nps']:.2f}</td>
+                    <td class="number detractor">{int(row['nps_detractores']):,}</td>
+                    <td class="number neutral">{int(row['nps_neutrales']):,}</td>
+                    <td class="number promoter">{int(row['nps_promotores']):,}</td>
+                    <td class="detractor">{row['nps_porc_detractores']:.2f}%</td>
+                    <td class="neutral">{row['nps_porc_neutrales']:.2f}%</td>
+                    <td class="promoter">{row['nps_porc_promotores']:.2f}%</td>
+                    <td class="number loss">{int(row['registros_sin_nps']):,}</td>
+                    <td class="loss">{row['porc_perdida_nps']:.2f}%</td>
+                </tr>
+""")
+
+        # Total BV NPS
+        total_bv_nps = self.df_bv['volumen_nps'].sum()
+        total_bv_regs = self.df_bv['volumen_total_mes'].sum()
+        total_bv_sin_nps = self.df_bv['registros_sin_nps'].sum()
+        total_bv_det = self.df_bv['nps_detractores'].sum()
+        total_bv_neu = self.df_bv['nps_neutrales'].sum()
+        total_bv_pro = self.df_bv['nps_promotores'].sum()
+        prom_bv_nps = (self.df_bv['promedio_nps'] * self.df_bv['volumen_nps']).sum() / total_bv_nps if total_bv_nps > 0 else 0
+
+        html_parts.append(f"""
+                <tr class="total-row">
+                    <td style="text-align: left; padding-left: 15px;">TOTAL BV</td>
+                    <td class="number">{int(total_bv_regs):,}</td>
+                    <td class="number">{int(total_bv_nps):,}</td>
+                    <td class="number">{prom_bv_nps:.2f}</td>
+                    <td class="number">{int(total_bv_det):,}</td>
+                    <td class="number">{int(total_bv_neu):,}</td>
+                    <td class="number">{int(total_bv_pro):,}</td>
+                    <td>{total_bv_det/total_bv_nps*100:.2f}%</td>
+                    <td>{total_bv_neu/total_bv_nps*100:.2f}%</td>
+                    <td>{total_bv_pro/total_bv_nps*100:.2f}%</td>
+                    <td class="number">{int(total_bv_sin_nps):,}</td>
+                    <td>{total_bv_sin_nps/total_bv_regs*100:.2f}%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+""")
+
+        # TABLA 3: CSAT - BANCO MÓVIL (BV no tiene CSAT)
+        html_parts.append("""
+    <div class="section-title">⭐ Métrica CSAT - Banco Móvil (BM)</div>
+    <div class="table-container">
+        <p style="text-align: center; color: #7f8c8d; font-style: italic; margin-bottom: 15px;">
+            ⚠️ Nota: Banco Virtual (BV) no recolecta métricas CSAT
+        </p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Mes</th>
+                    <th>Total Registros</th>
+                    <th>Con CSAT</th>
+                    <th>Promedio CSAT</th>
+                    <th>CSAT Mínimo</th>
+                    <th>CSAT Máximo</th>
+                    <th>Sin CSAT</th>
+                    <th>% Pérdida</th>
+                </tr>
+            </thead>
+            <tbody>
+""")
+
+        for _, row in self.df_bm.iterrows():
+            csat_prom = f"{row['promedio_csat']:.2f}" if pd.notna(row['promedio_csat']) else "-"
+            csat_min = f"{row['csat_minimo']:.2f}" if pd.notna(row['csat_minimo']) else "-"
+            csat_max = f"{row['csat_maximo']:.2f}" if pd.notna(row['csat_maximo']) else "-"
+
+            html_parts.append(f"""
+                <tr>
+                    <td class="month-col">{row['month_year']}</td>
+                    <td class="number">{int(row['volumen_total_mes']):,}</td>
+                    <td class="number">{int(row['volumen_csat']):,}</td>
+                    <td class="number">{csat_prom}</td>
+                    <td class="number">{csat_min}</td>
+                    <td class="number">{csat_max}</td>
+                    <td class="number loss">{int(row['registros_sin_csat']):,}</td>
+                    <td class="loss">{row['porc_perdida_csat']:.2f}%</td>
+                </tr>
+""")
+
+        # Total BM CSAT
+        total_bm_csat = self.df_bm['volumen_csat'].sum()
+        total_bm_sin_csat = self.df_bm['registros_sin_csat'].sum()
+        prom_bm_csat = (self.df_bm['promedio_csat'] * self.df_bm['volumen_csat']).sum() / total_bm_csat if total_bm_csat > 0 else 0
+        min_bm_csat = self.df_bm['csat_minimo'].min()
+        max_bm_csat = self.df_bm['csat_maximo'].max()
+
+        html_parts.append(f"""
+                <tr class="total-row">
+                    <td style="text-align: left; padding-left: 15px;">TOTAL BM</td>
+                    <td class="number">{int(total_bm_regs):,}</td>
+                    <td class="number">{int(total_bm_csat):,}</td>
+                    <td class="number">{prom_bm_csat:.2f}</td>
+                    <td class="number">{min_bm_csat:.2f}</td>
+                    <td class="number">{max_bm_csat:.2f}</td>
+                    <td class="number">{int(total_bm_sin_csat):,}</td>
+                    <td>{total_bm_sin_csat/total_bm_regs*100:.2f}%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+""")
+
+        # TABLA 4: DISTRIBUCIÓN 100% DE LOS DATOS
+        html_parts.append("""
+    <div class="section-title">📈 Distribución del 100% de los Datos - Por Canal</div>
+    <div class="table-container">
+        <p style="text-align: center; color: #2c3e50; font-weight: bold; margin-bottom: 15px;">
+            Cómo están distribuidos el 100% de los registros según las métricas disponibles
+        </p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Mes</th>
+                    <th>Canal</th>
+                    <th>Total Registros<br>(100%)</th>
+                    <th>Con Ambas Métricas<br>(NPS + CSAT)</th>
+                    <th>Solo NPS</th>
+                    <th>Solo CSAT</th>
+                    <th>Sin Métricas</th>
+                    <th>% Ambas</th>
+                    <th>% Solo NPS</th>
+                    <th>% Solo CSAT</th>
+                    <th>% Sin Métricas</th>
+                </tr>
+            </thead>
+            <tbody>
+""")
+
+        for _, row in self.df.iterrows():
+            total = row['volumen_total_mes']
+            canal_badge = f'<span class="badge-bm">{row["canal"]}</span>' if row['canal'] == 'BM' else f'<span class="badge-bv">{row["canal"]}</span>'
+
+            html_parts.append(f"""
+                <tr>
+                    <td class="month-col">{row['month_year']}</td>
+                    <td>{canal_badge}</td>
+                    <td class="number" style="font-weight: bold;">{int(total):,}</td>
+                    <td class="number promoter">{int(row['tiene_ambos']):,}</td>
+                    <td class="number" style="color: #3498db; font-weight: 500;">{int(row['solo_nps']):,}</td>
+                    <td class="number" style="color: #f39c12; font-weight: 500;">{int(row['solo_csat']):,}</td>
+                    <td class="number loss">{int(row['sin_metricas']):,}</td>
+                    <td class="promoter">{row['tiene_ambos']/total*100:.2f}%</td>
+                    <td style="color: #3498db; font-weight: 500;">{row['solo_nps']/total*100:.2f}%</td>
+                    <td style="color: #f39c12; font-weight: 500;">{row['solo_csat']/total*100:.2f}%</td>
+                    <td class="loss">{row['sin_metricas']/total*100:.2f}%</td>
+                </tr>
+""")
+
+        # Total consolidado distribución
+        html_parts.append(f"""
+                <tr class="total-row">
+                    <td colspan="2" style="text-align: left; padding-left: 15px;">TOTAL CONSOLIDADO (BM+BV)</td>
+                    <td class="number">{int(c['volumen_total_mes']):,}</td>
+                    <td class="number">{int(c['tiene_ambos']):,}</td>
+                    <td class="number">{int(c['solo_nps']):,}</td>
+                    <td class="number">{int(c['solo_csat']):,}</td>
+                    <td class="number">{int(c['sin_metricas']):,}</td>
+                    <td>{c['tiene_ambos']/c['volumen_total_mes']*100:.2f}%</td>
+                    <td>{c['solo_nps']/c['volumen_total_mes']*100:.2f}%</td>
+                    <td>{c['solo_csat']/c['volumen_total_mes']*100:.2f}%</td>
+                    <td>{c['sin_metricas']/c['volumen_total_mes']*100:.2f}%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+""")
+
+        # Footer
+        html_parts.append(f"""
     <div class="footer">
-        <p>Tabla generada por visualize_nps.py | Base de datos: {self.db_config['database']}</p>
-        <p>Datos extraídos de la tabla banco_movil_clean</p>
+        <p><strong>✅ Verificación de Integridad:</strong> Ambas + Solo NPS + Solo CSAT + Sin Métricas = 100% de los registros</p>
+        <p><strong>Fórmula:</strong> {int(c['tiene_ambos']):,} + {int(c['solo_nps']):,} + {int(c['solo_csat']):,} + {int(c['sin_metricas']):,} = {int(c['volumen_total_mes']):,} registros</p>
+        <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
+        <p>Tabla generada por 4_visualizacion.py | Base de datos: {self.db_config['database']}</p>
+        <p>Fuentes: banco_movil_clean (BM) y banco_virtual_clean (BV)</p>
     </div>
 </body>
 </html>
@@ -524,7 +817,7 @@ def main():
     args = parser.parse_args()
 
     logger.info("=" * 60)
-    logger.info("Tabla NPS/CSAT - Banco Movil")
+    logger.info("Tabla NPS/CSAT - Banco Movil y Banco Virtual")
     logger.info("=" * 60)
 
     # Crear instancia
