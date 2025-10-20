@@ -1,0 +1,660 @@
+version: v9-20251020-refinamiento-final-profundo
+categorias:
+- nombre: Texto Sin Sentido / Ruido
+  palabras_clave:
+  - __ruido__
+  - __sin_sentido__
+  - __texto_invalido__
+  min_len: 0
+  descripcion: "Textos sin contenido útil: caracteres aleatorios, puntuación sola, muy cortos, etc."
+- nombre: Falta de Información / N/A
+  palabras_clave:
+  - n/a
+  - na
+  - no aplica
+  - sin comentario
+  - sin comentarios
+  - ninguno
+  - ninguna
+  - no tengo
+  - no se
+  - s/d
+  - vacio
+  - vacío
+  - no hay
+  - omitido
+  - omitida
+  - porque si
+  - por qué si
+  - por que si
+  - no coment
+  - no comment
+  min_len: 0
+- nombre: Información de Producto y Servicio
+  palabras_clave:
+  - aclaracion
+  - aclaración
+  - aclarar
+  - informacion
+  - información
+  - consulta
+  - consultar
+  - extracto
+  - condiciones
+  - beneficios
+  - detalle
+  - detalles
+  - saldo
+  - movimientos
+  - estado cuenta
+  - estado de cuenta
+- nombre: Publicidad / Encuestas
+  palabras_clave:
+  - molesta
+  - molestan
+  - molesta mucho
+  - molestan mucho
+  - fastidio
+  - fastidiosa
+  - fastidian
+  - dejen de preguntar
+  - pop up
+  - pop ups
+  - popups
+  - anuncios
+  - publicidad
+  - encuesta
+  - encuestas
+  - harto de
+  - harta de
+  - cansones
+  - cansona
+  - demasiadas preguntas
+  min_len: 5
+  descripcion: "Quejas sobre anuncios, pop-ups o encuestas en la aplicación"
+- nombre: Nuevas Funcionalidades
+  palabras_clave:
+  - nueva funcion
+  - nueva funcionalidad
+  - mejoraria
+  - mejoren
+  - mejorar
+  - que mejoren
+  - puede mejorar
+  - pueden mejorar
+  - quiero que
+  - falta que
+  - falta
+  - hace falta
+  - billetera
+  - apple pay
+  - google pay
+  - desbloqueo
+  - desbloquear
+- nombre: Cobros / Tarifas
+  palabras_clave:
+  - cuota de manejo
+  - cuota manejo
+  - cobro
+  - cobros
+  - cobran
+  - cobrando
+  - me cobran
+  - me cobraron
+  - tasas
+  - tasa
+  - tasa interes
+  - tasa interés
+  - interes
+  - interés
+  - 4x1000
+  - 4 x 1000
+  - 4*1000
+  - gravamen
+  - impuesto
+  - seguro
+  - tarifa
+  - tarifas
+  - comision
+  - comisión
+  - costo
+  - costos
+  - descuento
+  - descuentos
+  - descuentan
+  - abono
+  - abonos
+  - en mora
+  - mora
+  - deuda
+  - debo
+  - debe
+- nombre: Canales Físicos y de Contacto
+  palabras_clave:
+  - call center
+  - servilinea
+  - servilínea
+  - whatsapp
+  - cajero
+  - oficina
+  - corresponsal
+  - entrega de plastico
+  - punto de atencion
+- nombre: Pagos
+  palabras_clave:
+  - pse
+  - pago
+  - pagos
+  - pagar
+  - servicios publicos
+  - servicios públicos
+  - planilla pila
+  - impuesto
+  - qr
+  - avalpay
+  - hacer pagos
+  - realizar pagos
+  - pago facil
+  - pago fácil
+  - pago rapido
+  - pago rápido
+  - pago tarjeta
+  - pagar servicios
+- nombre: Transferencias
+  palabras_clave:
+  - transfer
+  - transferencia
+  - transferencias
+  - transferir
+  - transfiya
+  - trasfiya
+  - cel2cel
+  - bre-b
+  - avances
+  - movimiento de dinero
+  - hacer transferencia
+  - hacer transferencias
+  - realizar transferencia
+  - realizar transferencias
+  - enviar dinero
+  - transferir dinero
+  - transferencia rapida
+  - transferencia rápida
+  - llave
+  - llaves
+  - llave transfiya
+  - registrar llave
+  - usar la llave
+  - las llaves
+- nombre: Rendimiento / Estabilidad
+  palabras_clave:
+  - caido
+  - caída
+  - cae
+  - cae mucho
+  - se cae
+  - se cae mucho
+  - cae constantemente
+  - no funciona
+  - no funciono
+  - funciona mal
+  - no sirve
+  - no sirven
+  - no carga
+  - no abre
+  - se demora
+  - demora mucho
+  - demora
+  - demorado
+  - demorada
+  - muy demorado
+  - muy demorada
+  - lento
+  - lenta
+  - muy lento
+  - muy lenta
+  - lentitud
+  - estabilidad
+  - estable
+  - app estable
+  - es estable
+  - muy estable
+  - inestable
+  - intermitente
+  - fuera de servicio
+  - error
+  - errores
+  - sale error
+  - sale erro
+  - codigo invalido
+  - código inválido
+  - codigo errado
+  - código errado
+  - codigo incorrecto
+  - código incorrecto
+  - no llega codigo
+  - no llega código
+  - no recibo codigo
+  - no recibo código
+  - no me llega
+  - no me llega el
+  - falla
+  - fallas
+  - falla mucho
+  - falla constantemente
+  - problemas tecnicos
+  - problemas técnicos
+  - problemas
+  - genera problemas
+  - tiene problemas
+  - se cuelga
+  - se traba
+  - se congela
+  - se bloquea
+  - bloquea continuamente
+  - no salio exitosa
+  - no salió exitosa
+  - no fue exitosa
+  - transaccion fallida
+  - transacción fallida
+  - no fue posible
+  - no ha sido posible
+  - devuelve
+  - devolviendo
+  - rechaza
+  - rechazada
+  - sale fallido
+  min_len: 5
+- nombre: Autenticación
+  palabras_clave:
+  - clave segura
+  - cambio de clave
+  - cambiar clave
+  - token
+  - activar token
+  - activacion token
+  - activación token
+  - crear token
+  - otp
+  - face id
+  - huella
+  - huella digital
+  - biometria
+  - biometría
+  - desbloqueo de clave
+  - login
+  - iniciar sesion
+  - iniciar sesión
+  - autenticacion
+  - autenticación
+  - codigo verificacion
+  - código verificación
+  - codigos verificacion
+  - códigos verificación
+  - codigo de acceso
+  - código de acceso
+- nombre: Seguridad
+  palabras_clave:
+  - seguridad
+  - seguro
+  - segura
+  - seguros
+  - seguras
+  - muy seguro
+  - muy segura
+  - es seguro
+  - es segura
+  - confianza
+  - confiable
+  - confiables
+  - es confiable
+  - proteccion
+  - protección
+  - protegido
+  - protegida
+  - fraude
+  - estafa
+  - no autorizado
+  - bloquear producto
+  - operacion no solicitada
+  - operación no solicitada
+  - robo
+  - clonacion
+  - clonación
+- nombre: Documentos
+  palabras_clave:
+  - certificado
+  - extracto
+  - soporte de pago
+  - referencia bancaria
+- nombre: Retiro sin Tarjeta
+  palabras_clave:
+  - retiro sin tarjeta
+  - retiro
+- nombre: Servicio (Interacción con Asesor)
+  palabras_clave:
+  - asesor
+  - atencion
+  - atención
+  - trato
+  - tiempo de espera
+  - agilidad
+  - buen servicio
+  - excelente servicio
+  - exelente servicio
+  - servicio rapido
+  - servicio rápido
+  - servicio agil
+  - servicio ágil
+- nombre: Recomendación / Opinión del Banco
+  palabras_clave:
+  - recomiendo
+  - recomendaria
+  - recomendaría
+  - si la recomiendo
+  - si lo recomiendo
+  - la recomiendo
+  - lo recomiendo
+  - no la recomiendo
+  - no lo recomiendo
+  - me gusta
+  - me encanta
+  - me fascina
+  - me parece
+  - amo el banco
+  - amo esta app
+  - amo la app
+  - odio el banco
+  - odio esta app
+  - odio la app
+  - los odio
+  - mejor banco
+  - peor banco
+  - buen banco
+  - mal banco
+  - pésimo banco
+  min_len: 5
+  descripcion: "Comentarios sobre si recomendaría o no el banco/app"
+- nombre: Evaluación General / Satisfacción
+  palabras_clave:
+  - excelente
+  - exelente
+  - execelente
+  - ecxelente
+  - exlente
+  - espectacular
+  - muy bien
+  - muy bueno
+  - muy buena
+  - muy buenos
+  - muy buenas
+  - muy buen
+  - todo bien
+  - todo ok
+  - todo en orden
+  - perfecto
+  - perfecta
+  - perfectos
+  - perfectas
+  - genial
+  - geniales
+  - super
+  - súper
+  - gracias
+  - mil gracias
+  - muchas gracias
+  - amazing
+  - maravilloso
+  - maravillosa
+  - magnifico
+  - magnífico
+  - buenísimo
+  - buenisimo
+  - lo mejor
+  - la mejor
+  - los mejores
+  - las mejores
+  - es el mejor
+  - es la mejor
+  - excelente servicio
+  - buen servicio
+  - mal servicio
+  - pésimo servicio
+  - pesimo servicio
+  - que mal
+  - muy mal
+  - muy mala
+  - muy malo
+  - pesimo
+  - pésimo
+  - pesima
+  - pésima
+  - terrible
+  - horrible
+  - mala
+  - malo
+  - bien
+  - buena
+  - bueno
+  - satisfecho
+  - satisfecha
+  - conforme
+  - efectivo
+  - efectiva
+  - eficiente
+  - eficaz
+  - eficiencia
+  - eficacia
+  - completo
+  - completa
+  - útil
+  - util
+  - comodo
+  - cómodo
+  - practico
+  - práctico
+  - versátil
+  - versatil
+  - amigable
+  - chevre
+  - chevere
+  - chévere
+  - normal
+  - regular
+  - fastidioso
+  - fastidiosa
+  - roban
+  - ladrones
+  - enredado
+  - enredada
+  - complejo
+  - compleja
+  - dificil
+  - difícil
+  - malisima
+  - malísima
+  - malisimo
+  - malísimo
+  - good
+  - very good
+  - great
+  - excellent
+  - nice
+  - bad
+  - it works
+  - no me gusto
+  - no me gustó
+  - me gustó
+  - me gusta mucho
+  - limitado
+  - limitada
+  - limitados
+  - limitadas
+  - basura
+  - dispendioso
+  - dispendióso
+  - interactivo
+  - interactiva
+  - positivo
+  - positiva
+  - veraz
+  - hasta el momento
+  - no he tenido
+  - sin ningún
+  - sin ningun inconveniente
+  min_len: 3
+  descripcion: "Comentarios que expresan una evaluación general positiva o negativa sin especificar aspectos concretos"
+- nombre: Usabilidad / Experiencia de Usuario
+  palabras_clave:
+  - facil usar
+  - fácil usar
+  - facil manejar
+  - fácil manejar
+  - facil manejo
+  - fácil manejo
+  - facil acceso
+  - fácil acceso
+  - facil utilizar
+  - fácil utilizar
+  - muy facil
+  - muy fácil
+  - super facil
+  - super fácil
+  - rapidez
+  - rapido
+  - rápido
+  - rapida
+  - rápida
+  - muy rapido
+  - muy rápido
+  - muy rapida
+  - muy rápida
+  - es rapido
+  - es rápido
+  - es rapida
+  - es rápida
+  - rapido facil
+  - rápido fácil
+  - rapida facil
+  - rápida fácil
+  - rapido y facil
+  - rápido y fácil
+  - rapida y facil
+  - rápida y fácil
+  - facil y rapido
+  - fácil y rápido
+  - facil y rapida
+  - fácil y rápida
+  - agil
+  - ágil
+  - muy agil
+  - muy ágil
+  - agilidad
+  - interfaz
+  - diseño
+  - navegacion
+  - navegación
+  - intuitivo
+  - intuitiva
+  - sencillo
+  - sencilla
+  - sencillez
+  - simple
+  - ligero
+  - ligera
+  - celeridad
+  - veloz
+  - velocidad
+  - oportuno
+  - oportuna
+  - inmediato
+  - inmediata
+  - instantaneo
+  - instantánea
+  - facil
+  - fácil
+  - complicado
+  - complicada
+  - muy complicado
+  - muy complicada
+  - dificil usar
+  - difícil usar
+  - confuso
+  - confusa
+  - poco claro
+  - poco clara
+  - falta claridad
+  - no es claro
+  - no es clara
+  min_len: 5
+- nombre: Tarjetas de Crédito/Débito
+  palabras_clave:
+  - tarjeta
+  - tarjetas
+  - tarjeta credito
+  - tarjeta crédito
+  - tarjeta debito
+  - tarjeta débito
+  - plastico
+  - plástico
+  - credito
+  - crédito
+  - debito
+  - débito
+  - cupo
+  - cupo tarjeta
+  - pagar tarjeta
+  - pago tarjeta credito
+  - pago tarjeta crédito
+  - cuota
+  - cuotas
+  - modificar cuotas
+  - diferir
+  - diferido
+  - diferidos
+  - plazo
+  - plazos
+- nombre: Productos y Cuentas
+  palabras_clave:
+  - cuenta
+  - cuentas
+  - cuenta ahorro
+  - cuenta corriente
+  - ahorro
+  - ahorros
+  - ahorrar
+  - ahorra tiempo
+  - me ahorra
+  - producto
+  - productos
+  - apertura cuenta
+  - abrir cuenta
+  - cancelar cuenta
+  - cerrar cuenta
+  - cdt
+  - certificado deposito
+  - inversion
+  - inversión
+  - invertir
+- nombre: Funcionalidades Bloqueadas
+  palabras_clave:
+  - no deja
+  - no me deja
+  - no permite
+  - no me permite
+  - no puedo
+  - deja hacer
+  - no deja hacer
+  - no me deja hacer
+  - no deja transferir
+  - no deja activar
+  - no deja pagar
+  - no deja enviar
+  - bloqueado
+  - bloqueada
+  - deshabilitado
+  - deshabilitada
+  - no disponible
+  - no esta disponible
+  - no está disponible
+otros: Otros

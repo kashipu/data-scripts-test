@@ -4,7 +4,8 @@
       "Bash(python:*)",
       "Bash(pip install:*)",
       "Bash(git mv:*)",
-      "Bash(gh pr list:*)"
+      "Bash(gh pr list:*)",
+      "Bash(timeout 10 bash -c \"sleep 10\")"
     ],
     "deny": [],
     "ask": []
