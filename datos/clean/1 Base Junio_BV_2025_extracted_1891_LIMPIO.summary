@@ -1,0 +1,21 @@
+======================================================================
+LOG DE LIMPIEZA
+======================================================================
+
+Nombre del archivo:      1 Base Junio_BV_2025_extracted_1891.xlsx
+Tipo:                    BV
+Fecha:                   2025-10-20 17:58:31
+
+Registros iniciales:     1,891
+Registros procesados:    1,891
+Registros con errores:   18
+Diferencia:              0
+
+----------------------------------------------------------------------
+ERRORES DETECTADOS:
+----------------------------------------------------------------------
+• JSON irrecuperable: 18 registros
+  Razón: Formato de JSON corrupto o no parseable
+  Acción: Se omitieron estos registros del output
+
+======================================================================

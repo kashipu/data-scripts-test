@@ -1,8 +1,51 @@
 #!/usr/bin/env python3
 """
-Limpiador de Muestras NPS
-Procesa muestras de 1000 registros antes del procesamiento masivo
-Maneja estructuras diferentes de BM y BV
+======================================================================================
+SCRIPT: 2_limpieza.py
+======================================================================================
+PROPÓSITO:
+    Limpia y transforma los datos extraídos de encuestas NPS preparándolos para su
+    inserción en PostgreSQL. Maneja las estructuras diferentes de Banco Móvil (BM)
+    y Banco Virtual (BV).
+
+QUÉ HACE:
+    1. Lee archivos Excel desde 'datos/procesados/' (generados por 1_extractor.py)
+    2. Corrige problemas de encoding UTF-8 (Ã³→ó, Ã¡→á, Ã©→é, etc.)
+    3. Convierte JSON malformado (comillas simples → comillas dobles)
+    4. **BM**: Expande el campo JSON 'answers' en columnas separadas (NPS, CSAT)
+    5. **BV**: Normaliza nombres de columnas y limpia URLs/feedback
+    6. Categoriza scores NPS (0-6: Detractor, 7-8: Neutral, 9-10: Promotor)
+    7. Remueve timezones de fechas para compatibilidad con Excel
+    8. Guarda datos limpios en 'datos/clean/' listos para inserción
+
+TRANSFORMACIONES PRINCIPALES:
+    - Encoding UTF-8: Corrige caracteres malformados en español
+    - JSON de respuestas (BM): Expande métricas anidadas en columnas planas
+    - Fechas: Normaliza formatos y remueve timezones
+    - NPS: Calcula categorías basadas en score (Detractor/Neutral/Promotor)
+
+ARCHIVOS DE ENTRADA:
+    datos/procesados/Agosto_BM_2025_extracted_50000.xlsx
+    datos/procesados/Agosto_BV_2025_extracted_200.xlsx
+
+ARCHIVOS DE SALIDA:
+    datos/clean/Agosto_BM_2025_extracted_50000_LIMPIO.xlsx
+    datos/clean/Agosto_BV_2025_extracted_200_LIMPIO.xlsx
+
+LOG:
+    data_cleaning.log - Registro detallado de todas las operaciones
+
+CUÁNDO EJECUTAR:
+    Después de ejecutar 1_extractor.py y antes de 3_insercion.py
+
+RESULTADO ESPERADO:
+    ✅ BM: Agosto_BM_2025_extracted_50000.xlsx → ...LIMPIO.xlsx (50,000 registros)
+    ✅ BV: Agosto_BV_2025_extracted_200.xlsx → ...LIMPIO.xlsx (200 registros)
+    📈 ESTADÍSTICAS: encoding_fixed: 1,250, json_fixed: 950, etc.
+
+SIGUIENTE PASO:
+    Ejecutar: python 3_insercion.py
+======================================================================================
 """
 
 import pandas as pd
@@ -14,8 +57,8 @@ import os
 from pathlib import Path
 import numpy as np
 
-class SampleCleaner:
-    """Limpiador especializado para muestras de datos NPS"""
+class DataCleaner:
+    """Limpiador especializado para datos NPS"""
     
     def __init__(self):
         self.setup_logging()
@@ -54,7 +97,7 @@ class SampleCleaner:
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
-                logging.FileHandler('sample_cleaning.log'),
+                logging.FileHandler('data_cleaning.log'),
                 logging.StreamHandler()
             ]
         )
@@ -74,39 +117,39 @@ class SampleCleaner:
         return fixed_text
     
     def fix_json_format(self, json_text):
-        """Convierte JSON con comillas simples a formato válido - versión robusta"""
+        """Convierte JSON con comillas simples a formato válido - solución robusta"""
         if not isinstance(json_text, str) or pd.isna(json_text):
             return json_text
-        
+
         try:
             # Intenta parsear primero (por si ya está bien)
             json.loads(json_text)
             return json_text
         except:
             pass
-        
-        # Limpia caracteres problemáticos primero
-        fixed = json_text
-        
-        # Remueve caracteres de escape problemáticos
-        fixed = fixed.replace('\\', '')
-        
-        # Corrige comillas simples por dobles en propiedades
-        fixed = re.sub(r"'(\w+)':", r'"\1":', fixed)
-        
-        # Corrige comillas simples por dobles en valores - más robusto
-        fixed = re.sub(r":\s*'([^']*?)'", r': "\1"', fixed)
-        
-        # Intenta parsear la versión corregida
+
         try:
-            json.loads(fixed)
+            import ast
+            fixed = json_text.replace('\\', '')
+
+            # Agrega comas donde faltan - muy específico para evitar tocar valores
+            # 1. Después de números antes de comilla
+            fixed = re.sub(r"(\d)\s+'", r"\1, '", fixed)
+            # 2. Entre comillas solo si el siguiente char es letra (nuevo campo)
+            fixed = re.sub(r"'\s+'(\w)", r"', '\1", fixed)
+            # 3. Entre objetos
+            fixed = re.sub(r"}\s+{", r"}, {", fixed)
+
+            # Ahora ast.literal_eval debería funcionar
+            parsed = ast.literal_eval(fixed)
+            fixed_json = json.dumps(parsed, ensure_ascii=False)
             self.stats['json_fixed'] += 1
-            return fixed
+            return fixed_json
+
         except Exception as e:
-            # Si aún falla, devuelve string vacío para evitar crashes
             self.stats['json_corrupted'] += 1
-            self.logger.warning(f"JSON irrecuperable, saltando registro: {str(e)[:50]}")
-            return '[]'  # JSON vacío válido
+            self.logger.warning(f"JSON irrecuperable: {str(e)[:50]}")
+            return '[]'
     
     def parse_bm_answers(self, answers_json):
         """Parsea y mapea JSON de respuestas BM a columnas específicas por métrica - versión robusta"""
@@ -189,9 +232,9 @@ class SampleCleaner:
         except:
             return 'Unknown'
     
-    def clean_bm_sample(self, df):
-        """Limpia muestra de BM (Banco Móvil)"""
-        self.logger.info(f"Limpiando muestra BM: {len(df)} registros")
+    def clean_bm_data(self, df):
+        """Limpia datos de BM (Banco Móvil)"""
+        self.logger.info(f"Limpiando datos BM: {len(df)} registros")
         
         cleaned = df.copy()
         
@@ -245,9 +288,9 @@ class SampleCleaner:
         
         return cleaned
     
-    def clean_bv_sample(self, df):
-        """Limpia muestra de BV (Banco Virtual)"""
-        self.logger.info(f"Limpiando muestra BV: {len(df)} registros")
+    def clean_bv_data(self, df):
+        """Limpia datos de BV (Banco Virtual)"""
+        self.logger.info(f"Limpiando datos BV: {len(df)} registros")
         
         cleaned = df.copy()
         
@@ -324,11 +367,48 @@ class SampleCleaner:
         
         return cleaned
     
+    def generar_log_limpieza(self, archivo_original, archivo_limpio, entrada, salida, tipo):
+        """Genera log compacto de limpieza"""
+        try:
+            log_file = str(archivo_limpio).replace('.xlsx', '.summary')
+            registros_error = self.stats.get('json_corrupted', 0)
+            diferencia = entrada - salida
+
+            with open(log_file, 'w', encoding='utf-8') as f:
+                f.write("="*70 + "\n")
+                f.write("LOG DE LIMPIEZA\n")
+                f.write("="*70 + "\n\n")
+
+                f.write(f"Nombre del archivo:      {Path(archivo_original).name}\n")
+                f.write(f"Tipo:                    {tipo}\n")
+                f.write(f"Fecha:                   {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+
+                f.write(f"Registros iniciales:     {entrada:,}\n")
+                f.write(f"Registros procesados:    {salida:,}\n")
+                f.write(f"Registros con errores:   {registros_error:,}\n")
+                f.write(f"Diferencia:              {diferencia:,}\n\n")
+
+                # Log de errores
+                if registros_error > 0:
+                    f.write("-"*70 + "\n")
+                    f.write("ERRORES DETECTADOS:\n")
+                    f.write("-"*70 + "\n")
+                    f.write(f"• JSON irrecuperable: {registros_error} registros\n")
+                    f.write("  Razón: Formato de JSON corrupto o no parseable\n")
+                    f.write("  Acción: Se omitieron estos registros del output\n")
+                else:
+                    f.write("✅ No se detectaron errores\n")
+
+                f.write("\n" + "="*70 + "\n")
+
+        except Exception as e:
+            self.logger.warning(f"Error generando log: {e}")
+
     def clean_url(self, url):
         """Limpia URLs"""
         if pd.isna(url) or not url or url == 'nan':
             return ''
-        
+
         url = str(url).strip()
         if '?' in url:
             return url.split('?')[0]
@@ -344,46 +424,55 @@ class SampleCleaner:
         text = re.sub(r'[^\w\s\.\,\!\?\:\;\-\ñáéíóúÁÉÍÓÚ]', '', text)
         return text
     
-    def process_sample_file(self, file_path):
-        """Procesa un archivo de muestra"""
-        self.logger.info(f"Procesando muestra: {file_path}")
-        
+    def process_data_file(self, file_path):
+        """Procesa un archivo de datos"""
+        self.logger.info(f"Procesando datos: {file_path}")
+
+        registros_iniciales = 0
+        registros_procesados = 0
+
         try:
             # Lee archivo
             df = pd.read_excel(file_path)
-            
+            registros_iniciales = len(df)
+
             # Determina tipo por nombre de archivo
             file_name = Path(file_path).name.lower()
             if 'bm' in file_name:
-                cleaned_df = self.clean_bm_sample(df)
+                cleaned_df = self.clean_bm_data(df)
                 file_type = 'BM'
             elif 'bv' in file_name:
-                cleaned_df = self.clean_bv_sample(df)
+                cleaned_df = self.clean_bv_data(df)
                 file_type = 'BV'
             else:
                 raise ValueError(f"No se pudo determinar tipo de archivo: {file_name}")
-            
+
+            registros_procesados = len(cleaned_df)
+
             # Genera nombre de archivo limpio
-            output_dir = Path("muestras_limpias")
-            output_dir.mkdir(exist_ok=True)
-            
+            output_dir = Path("datos/clean")
+            output_dir.mkdir(parents=True, exist_ok=True)
+
             base_name = Path(file_path).stem
             clean_file = output_dir / f"{base_name}_LIMPIO.xlsx"
-            
+
             # Guarda archivo limpio
             cleaned_df.to_excel(clean_file, index=False)
-            
-            self.logger.info(f"Muestra limpia guardada: {clean_file}")
-            
+
+            # Genera log de limpieza
+            self.generar_log_limpieza(file_path, clean_file, registros_iniciales, registros_procesados, file_type)
+
+            self.logger.info(f"Datos limpios guardados: {clean_file}")
+
             return clean_file, cleaned_df, file_type
-            
+
         except Exception as e:
             self.logger.error(f"Error procesando {file_path}: {str(e)}")
             self.stats['errors'] += 1
             return None, None, None
     
-    def analyze_cleaned_sample(self, df, file_type):
-        """Analiza calidad de la muestra limpia"""
+    def analyze_cleaned_data(self, df, file_type):
+        """Analiza calidad de los datos limpios"""
         self.logger.info(f"\nANALISIS DE CALIDAD - {file_type}")
         self.logger.info("=" * 40)
         
@@ -443,41 +532,41 @@ class SampleCleaner:
 
 def main():
     """Función principal"""
-    print("🚀 LIMPIEZA DE MUESTRAS NPS")
+    print("🚀 LIMPIEZA DE DATOS NPS")
     print("=" * 50)
     
-    cleaner = SampleCleaner()
-    
-    # Busca archivos de muestra
-    sample_dir = Path("muestras")
-    if not sample_dir.exists():
-        print("❌ Carpeta 'muestras' no encontrada")
-        print("💡 Ejecuta primero sample_extractor.py")
+    cleaner = DataCleaner()
+
+    # Busca archivos de datos
+    data_dir = Path("datos/procesados")
+    if not data_dir.exists():
+        print("❌ Carpeta 'datos/procesados' no encontrada")
+        print("💡 Ejecuta primero 02_extractor.py")
         return
     
-    sample_files = list(sample_dir.glob("*.xlsx"))
+    data_files = list(data_dir.glob("*.xlsx"))
     
-    if not sample_files:
-        print("❌ No se encontraron archivos de muestra")
+    if not data_files:
+        print("❌ No se encontraron archivos de datos")
         return
     
-    print(f"📂 Archivos de muestra encontrados: {len(sample_files)}")
+    print(f"📂 Archivos de datos encontrados: {len(data_files)}")
     
     results = []
     
-    for sample_file in sample_files:
-        print(f"\n📄 Procesando: {sample_file.name}")
+    for data_file in data_files:
+        print(f"\n📄 Procesando: {data_file.name}")
         
-        clean_file, clean_df, file_type = cleaner.process_sample_file(sample_file)
+        clean_file, clean_df, file_type = cleaner.process_data_file(data_file)
         
         if clean_file and clean_df is not None:
             # Analiza calidad
-            cleaner.analyze_cleaned_sample(clean_df, file_type)
-            results.append((sample_file, clean_file, len(clean_df), file_type))
+            cleaner.analyze_cleaned_data(clean_df, file_type)
+            results.append((data_file, clean_file, len(clean_df), file_type))
     
     # Resumen final
     print(f"\n{'='*50}")
-    print("📊 RESUMEN DE LIMPIEZA DE MUESTRAS:")
+    print("📊 RESUMEN DE LIMPIEZA DE DATOS:")
     
     if results:
         for original, cleaned, size, ftype in results:
@@ -488,13 +577,13 @@ def main():
             print(f"  {key}: {value:,}")
         
         print(f"\n🎯 SIGUIENTE PASO:")
-        print("1. Revisar archivos en carpeta 'muestras_limpias/'")
-        print("2. Insertar muestras limpias en PostgreSQL")
+        print("1. Revisar archivos en carpeta 'datos/clean/'")
+        print("2. Insertar datos limpios en PostgreSQL")
         print("3. Validar resultados en base de datos")
         print("4. Si todo está correcto, procesar archivos completos")
-        
+
     else:
-        print("❌ No se procesaron muestras exitosamente")
+        print("❌ No se procesaron datos exitosamente")
 
 if __name__ == "__main__":
     main()

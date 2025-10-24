@@ -1,0 +1,32 @@
+================================================================================
+LOG DE EXTRACCIÓN - 1_extractor.py
+================================================================================
+
+Fecha de extracción: 2025-10-20 17:50:27
+Archivo original: 1 Base Junio_BV_2025.xlsx
+Archivo de salida: 1 Base Junio_BV_2025_extracted_1891.xlsx
+Tipo de archivo: BV
+
+ESTADÍSTICAS:
+  - Total registros en archivo original: 1,891
+  - Registros extraídos: 1,891
+  - Total columnas: 17
+
+COLUMNAS CLAVE DETECTADAS:
+  • Date Submitted
+  • ¿Qué tan probable es que recomiendes este sitio web a un familiar o amigo?
+  • Tags for: ¿Qué tan probable es que recomiendes este sitio web a un familiar o amigo?
+
+ADVERTENCIAS:
+  ⚠️  17 registros duplicados detectados
+
+VALIDACIÓN DE CALIDAD:
+  - Tasa de calidad: 100.0%
+  - Estado: EXCELENTE
+  - Críticos: 0
+  - Advertencias: 1
+  - Duplicados reales: 17
+  📋 Ver detalles completos en archivo .validation
+
+ESTADO: ✅ Exitoso
+================================================================================

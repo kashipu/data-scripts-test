@@ -1,0 +1,28 @@
+# Pipeline ETL - Análisis NPS/CSAT
+# =================================
+
+# Core data processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Excel support
+openpyxl>=3.1.0
+
+# Database
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+wordcloud>=1.9.0
+
+# Configuration
+pyyaml>=6.0
+
+# Text processing
+pyahocorasick>=2.0.0
+
+# Optional: AI/NLP (for sentiment analysis)
+# Uncomment if using Ollama or other NLP tools
+# requests>=2.31.0

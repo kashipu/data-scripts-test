@@ -1,4 +1,35 @@
+# Archivos temporales del proyecto
 muestras
 muestras_limpias
 *.xlsx
 CLAUDE.md
+
+# Entorno virtual Python
+.venv/
+venv/
+env/
+
+# Cache y compilados Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Logs
+*.log
+
+# Base de datos
+*.db
+*.sqlite
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
