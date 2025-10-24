@@ -5,7 +5,12 @@
       "Bash(pip install:*)",
       "Bash(git mv:*)",
       "Bash(gh pr list:*)",
-      "Bash(timeout 10 bash -c \"sleep 10\")"
+      "Bash(timeout 10 bash -c \"sleep 10\")",
+      "Bash(rmdir data-cruda datos_raw datos_clean)",
+      "Bash(mv datos_raw/.processed_files.txt datos/procesados/)",
+      "Bash(rmdir datos_raw)",
+      "Bash(psql:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,0 +1,755 @@
+version: v9-20251020-refinamiento-final-profundo
+categorias:
+- nombre: Texto Sin Sentido / Ruido
+  palabras_clave:
+  - __ruido__
+  - __sin_sentido__
+  - __texto_invalido__
+  min_len: 0
+  descripcion: 'Textos sin contenido útil: caracteres aleatorios, puntuación sola,
+    muy cortos, etc.'
+- nombre: Falta de Información / N/A
+  palabras_clave:
+  - n/a
+  - na
+  - no aplica
+  - sin comentario
+  - sin comentarios
+  - ninguno
+  - ninguna
+  - no tengo
+  - no se
+  - s/d
+  - vacio
+  - vacío
+  - no hay
+  - omitido
+  - omitida
+  - porque si
+  - por qué si
+  - por que si
+  - no coment
+  - no comment
+  min_len: 0
+- nombre: Información de Producto y Servicio
+  palabras_clave:
+  - aclaracion
+  - aclaración
+  - aclarar
+  - beneficios
+  - condiciones
+  - consulta
+  - consultar
+  - detalle
+  - detalles
+  - estado cuenta
+  - estado de cuenta
+  - informacion
+  - información
+  - movimientos
+  - saldo
+  - saldos
+- nombre: Publicidad / Encuestas
+  palabras_clave:
+  - anuncios
+  - cansona
+  - cansones
+  - dejen
+  - dejen de preguntar
+  - demasiadas preguntas
+  - encuesta
+  - encuestas
+  - fastidian
+  - fastidio
+  - fastidiosa
+  - harta de
+  - harto de
+  - molesta
+  - molesta mucho
+  - molestan
+  - molestan mucho
+  - molestando
+  - pop up
+  - pop ups
+  - popups
+  - publicidad
+  min_len: 5
+  descripcion: Quejas sobre anuncios, pop-ups o encuestas en la aplicación
+- nombre: Nuevas Funcionalidades
+  palabras_clave:
+  - apple pay
+  - billetera
+  - desbloquear
+  - desbloqueo
+  - falta
+  - falta que
+  - faltan
+  - google pay
+  - hace falta
+  - mejorar
+  - mejoraria
+  - mejoren
+  - nueva funcion
+  - nueva funcionalidad
+  - puede mejorar
+  - pueden mejorar
+  - que mejoren
+  - quiero que
+- nombre: Cobros / Tarifas
+  palabras_clave:
+  - 4 x 1000
+  - 4*1000
+  - 4x1000
+  - abono
+  - abonos
+  - alto
+  - altos
+  - cobran
+  - cobrando
+  - cobro
+  - cobros
+  - comision
+  - comisión
+  - costo
+  - costos
+  - cuota de manejo
+  - cuota manejo
+  - debe
+  - deberia
+  - deberian
+  - debo
+  - descuentan
+  - descuento
+  - descuentos
+  - deuda
+  - en mora
+  - gravamen
+  - impuesto
+  - interes
+  - intereses
+  - interés
+  - me cobran
+  - me cobraron
+  - mora
+  - tarifa
+  - tarifas
+  - tasa
+  - tasa interes
+  - tasa interés
+  - tasas
+- nombre: Canales Físicos y de Contacto
+  palabras_clave:
+  - cajero
+  - cajeros
+  - call center
+  - corresponsal
+  - entrega de plastico
+  - oficina
+  - punto de atencion
+  - servilinea
+  - servilínea
+  - whatsapp
+- nombre: Pagos
+  palabras_clave:
+  - pse
+  - pago
+  - pagos
+  - pagar
+  - servicios publicos
+  - servicios públicos
+  - planilla pila
+  - impuesto
+  - qr
+  - avalpay
+  - hacer pagos
+  - realizar pagos
+  - pago facil
+  - pago fácil
+  - pago rapido
+  - pago rápido
+  - pago tarjeta
+  - pagar servicios
+- nombre: Transferencias
+  palabras_clave:
+  - transfer
+  - transferencia
+  - transferencias
+  - transferir
+  - transfiya
+  - trasfiya
+  - cel2cel
+  - bre-b
+  - avances
+  - movimiento de dinero
+  - hacer transferencia
+  - hacer transferencias
+  - realizar transferencia
+  - realizar transferencias
+  - enviar dinero
+  - transferir dinero
+  - transferencia rapida
+  - transferencia rápida
+  - llave
+  - llaves
+  - llave transfiya
+  - registrar llave
+  - usar la llave
+  - las llaves
+- nombre: Rendimiento / Estabilidad
+  palabras_clave:
+  - abre
+  - app estable
+  - bloquea
+  - bloquea continuamente
+  - cae
+  - cae constantemente
+  - cae mucho
+  - caido
+  - carga
+  - cargar
+  - caída
+  - codigo errado
+  - codigo incorrecto
+  - codigo invalido
+  - constantemente
+  - código errado
+  - código incorrecto
+  - código inválido
+  - demora
+  - demora mucho
+  - demorada
+  - demorado
+  - devolviendo
+  - devuelve
+  - error
+  - errores
+  - es estable
+  - estabilidad
+  - estable
+  - falla
+  - falla constantemente
+  - falla mucho
+  - fallando
+  - fallas
+  - fuera de servicio
+  - funciona mal
+  - genera problemas
+  - inestable
+  - intermitente
+  - lenta
+  - lentitud
+  - lento
+  - lentos
+  - mantiene
+  - muy demorada
+  - muy demorado
+  - muy estable
+  - muy lenta
+  - muy lento
+  - no abre
+  - no carga
+  - no fue exitosa
+  - no fue posible
+  - no funciona
+  - no funciono
+  - no ha sido posible
+  - no llega codigo
+  - no llega código
+  - no me llega
+  - no me llega el
+  - no recibo codigo
+  - no recibo código
+  - no salio exitosa
+  - no salió exitosa
+  - no sirve
+  - no sirven
+  - presenta
+  - presentando
+  - problemas
+  - problemas tecnicos
+  - problemas técnicos
+  - rechaza
+  - rechazada
+  - sale erro
+  - sale error
+  - sale fallido
+  - se bloquea
+  - se cae
+  - se cae mucho
+  - se congela
+  - se cuelga
+  - se demora
+  - se traba
+  - sirve
+  - sirven
+  - tiene problemas
+  - traba
+  - transaccion fallida
+  - transacción fallida
+  - ultimamente
+  min_len: 5
+- nombre: Autenticación
+  palabras_clave:
+  - clave segura
+  - cambio de clave
+  - cambiar clave
+  - token
+  - activar token
+  - activacion token
+  - activación token
+  - crear token
+  - otp
+  - face id
+  - huella
+  - huella digital
+  - biometria
+  - biometría
+  - desbloqueo de clave
+  - login
+  - iniciar sesion
+  - iniciar sesión
+  - autenticacion
+  - autenticación
+  - codigo verificacion
+  - código verificación
+  - codigos verificacion
+  - códigos verificación
+  - codigo de acceso
+  - código de acceso
+- nombre: Seguridad
+  palabras_clave:
+  - bloquear producto
+  - clonacion
+  - clonación
+  - confiable
+  - confiables
+  - confianza
+  - es confiable
+  - es segura
+  - es seguro
+  - estafa
+  - fraude
+  - insegura
+  - muy segura
+  - muy seguro
+  - no autorizado
+  - operacion no solicitada
+  - operación no solicitada
+  - proteccion
+  - protección
+  - protegida
+  - protegido
+  - robo
+  - segura
+  - seguras
+  - seguridad
+  - seguro
+  - seguros
+- nombre: Documentos
+  palabras_clave:
+  - certificado
+  - certificados
+  - extracto
+  - extractos
+  - referencia bancaria
+  - soporte de pago
+- nombre: Retiro sin Tarjeta
+  palabras_clave:
+  - retiro sin tarjeta
+  - retiro
+- nombre: Servicio (Interacción con Asesor)
+  palabras_clave:
+  - asesor
+  - atencion
+  - atención
+  - trato
+  - tiempo de espera
+  - buen servicio
+  - excelente servicio
+  - exelente servicio
+  - servicio rapido
+  - servicio rápido
+  - servicio agil
+  - servicio ágil
+- nombre: Recomendación / Opinión del Banco
+  palabras_clave:
+  - amo el banco
+  - amo esta app
+  - amo la app
+  - buen banco
+  - encanta
+  - gusta
+  - la recomiendo
+  - lo recomiendo
+  - los odio
+  - mal banco
+  - me encanta
+  - me fascina
+  - me gusta
+  - me parece
+  - mejor banco
+  - no la recomiendo
+  - no lo recomiendo
+  - odio el banco
+  - odio esta app
+  - odio la app
+  - peor banco
+  - pésimo banco
+  - recomendaria
+  - recomendaría
+  - recomiendo
+  - si la recomiendo
+  - si lo recomiendo
+  min_len: 5
+  descripcion: Comentarios sobre si recomendaría o no el banco/app
+- nombre: Evaluación General / Satisfacción
+  palabras_clave:
+  - amazing
+  - amigable
+  - apo
+  - appn
+  - atendido
+  - bad
+  - basura
+  - bien
+  - bienn
+  - bieno
+  - buen
+  - buen servicio
+  - buena
+  - buenan
+  - buenas
+  - bueni
+  - buenisima
+  - buenisimo
+  - bueno
+  - buenon
+  - buenos
+  - buens
+  - buenísimo
+  - calidad
+  - chevere
+  - chevre
+  - chévere
+  - comodo
+  - compleja
+  - complejo
+  - completa
+  - completo
+  - conforme
+  - cómodo
+  - dificil
+  - difícil
+  - dispendioso
+  - dispendióso
+  - ecxelente
+  - efectiva
+  - efectivo
+  - eficacia
+  - eficaz
+  - eficiencia
+  - eficiente
+  - eficientes
+  - enredada
+  - enredado
+  - entidad
+  - es el mejor
+  - es la mejor
+  - espectacular
+  - excelente
+  - excelente servicio
+  - excelenten
+  - excelentes
+  - excellent
+  - execelente
+  - exelente
+  - exlente
+  - experiencia
+  - fastidiosa
+  - fastidioso
+  - general
+  - genial
+  - geniales
+  - good
+  - gracias
+  - great
+  - gusto
+  - hasta el momento
+  - horrible
+  - ido
+  - inconveniente
+  - interactiva
+  - interactivo
+  - it works
+  - la mejor
+  - ladrones
+  - las mejores
+  - limitada
+  - limitadas
+  - limitado
+  - limitados
+  - lo mejor
+  - los mejores
+  - magnifico
+  - magnífico
+  - mal
+  - mal servicio
+  - mala
+  - malisima
+  - malisimo
+  - malo
+  - malos
+  - malísima
+  - malísimo
+  - maravillosa
+  - maravilloso
+  - me gusta mucho
+  - me gustó
+  - mejor
+  - mejora
+  - mejorado
+  - mejorando
+  - mejores
+  - mejoro
+  - mil gracias
+  - momento
+  - muchas gracias
+  - muy bien
+  - muy buen
+  - muy buena
+  - muy buenas
+  - muy bueno
+  - muy buenos
+  - muy mal
+  - muy mala
+  - muy malo
+  - nice
+  - no he tenido
+  - no me gusto
+  - no me gustó
+  - normal
+  - parecido
+  - perfecta
+  - perfectas
+  - perfecto
+  - perfectos
+  - pesima
+  - pesimo
+  - pesimo servicio
+  - positiva
+  - positivo
+  - practico
+  - presta
+  - práctico
+  - pésima
+  - pésimo
+  - pésimo servicio
+  - que mal
+  - regular
+  - roban
+  - satisfecha
+  - satisfecho
+  - servicio
+  - servicion
+  - servicios
+  - servido
+  - sin ningun inconveniente
+  - sin ningún
+  - super
+  - súper
+  - tenido
+  - terrible
+  - todo bien
+  - todo en orden
+  - todo ok
+  - util
+  - veraz
+  - versatil
+  - versátil
+  - very good
+  - útil
+  min_len: 3
+  descripcion: Comentarios que expresan una evaluación general positiva o negativa
+    sin especificar aspectos concretos
+- nombre: Usabilidad / Experiencia de Usuario
+  palabras_clave:
+  - acceder
+  - acceso
+  - agil
+  - agiles
+  - agilidad
+  - celeridad
+  - claro
+  - complicaciones
+  - complicada
+  - complicado
+  - confusa
+  - confuso
+  - dificil usar
+  - difícil usar
+  - diseño
+  - entender
+  - entendible
+  - es rapida
+  - es rapido
+  - es rápida
+  - es rápido
+  - facil
+  - facil acceso
+  - facil manejar
+  - facil manejo
+  - facil usar
+  - facil utilizar
+  - facil y rapida
+  - facil y rapido
+  - faciles
+  - facilidad
+  - facilidades
+  - facilita
+  - facilmente
+  - faciln
+  - falta claridad
+  - fácil
+  - fácil acceso
+  - fácil manejar
+  - fácil manejo
+  - fácil usar
+  - fácil utilizar
+  - fácil y rápida
+  - fácil y rápido
+  - inmediata
+  - inmediato
+  - instantaneo
+  - instantánea
+  - interfaz
+  - intuitiva
+  - intuitivo
+  - ligera
+  - ligero
+  - manejar
+  - manejo
+  - muy agil
+  - muy complicada
+  - muy complicado
+  - muy facil
+  - muy fácil
+  - muy rapida
+  - muy rapido
+  - muy rápida
+  - muy rápido
+  - muy ágil
+  - navegacion
+  - navegación
+  - no es clara
+  - no es claro
+  - oportuna
+  - oportuno
+  - oportunos
+  - poco clara
+  - poco claro
+  - rapida
+  - rapida facil
+  - rapida y facil
+  - rapidas
+  - rapidez
+  - rapido
+  - rapido facil
+  - rapido y facil
+  - rapidos
+  - rápida
+  - rápida fácil
+  - rápida y fácil
+  - rápido
+  - rápido fácil
+  - rápido y fácil
+  - sencilla
+  - sencillez
+  - sencillo
+  - simple
+  - super facil
+  - super fácil
+  - tramite
+  - tramites
+  - usar
+  - usarla
+  - uso
+  - velocidad
+  - veloz
+  - vida
+  - ágil
+  min_len: 5
+- nombre: Tarjetas de Crédito/Débito
+  palabras_clave:
+  - credito
+  - crédito
+  - cuota
+  - cuotas
+  - cupo
+  - cupo tarjeta
+  - debito
+  - diferido
+  - diferidos
+  - diferir
+  - débito
+  - modificar
+  - modificar cuotas
+  - pagar tarjeta
+  - pago tarjeta credito
+  - pago tarjeta crédito
+  - plastico
+  - plazo
+  - plazos
+  - plástico
+  - tarjeta
+  - tarjeta credito
+  - tarjeta crédito
+  - tarjeta debito
+  - tarjeta débito
+  - tarjetas
+- nombre: Productos y Cuentas
+  palabras_clave:
+  - abrir cuenta
+  - ahorra tiempo
+  - ahorrar
+  - ahorro
+  - ahorros
+  - apertura cuenta
+  - cancelar cuenta
+  - cdt
+  - cerrar cuenta
+  - certificado deposito
+  - cuenta
+  - cuenta ahorro
+  - cuenta corriente
+  - cuentas
+  - descuenta
+  - inversion
+  - inversión
+  - invertir
+  - me ahorra
+  - producto
+  - productos
+- nombre: Funcionalidades Bloqueadas
+  palabras_clave:
+  - bloqueada
+  - bloqueado
+  - deja
+  - deja hacer
+  - deshabilitada
+  - deshabilitado
+  - nada
+  - no deja
+  - no deja activar
+  - no deja enviar
+  - no deja hacer
+  - no deja pagar
+  - no deja transferir
+  - no disponible
+  - no esta disponible
+  - no está disponible
+  - no me deja
+  - no me deja hacer
+  - no me permite
+  - no permite
+  - no puedo
+otros: Otros

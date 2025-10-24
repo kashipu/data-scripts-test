@@ -1,0 +1,201 @@
+positivas:
+- agradezco
+- amo
+- bacano
+- bien
+- buen
+- buenan
+- buenisima
+- buenisimo
+- bueno
+- buenon
+- chevere
+- contento
+- ecxelente
+- encanta
+- excelente
+- execelente
+- exelente
+- fantástico
+- felicitaciones
+- funciona
+- funcionado
+- fácil
+- gracias
+- gran
+- herramienta
+- ido
+- increíble
+- maravilloso
+- me gusta
+- mejor
+- mejorado
+- parecido
+- perfecto
+- práctico
+- recomiendo
+- rápida
+- rápido
+- satisfecho
+- servicio
+- servicion
+- servido
+- top
+- útil
+negativas:
+- activar
+- actualizan
+- basura
+- bloqueada
+- cobrando
+- cobraron
+- complicado
+- decepcionante
+- deficiente
+- deja
+- dejan
+- dejen
+- demoran
+- deplorable
+- desastre
+- descontando
+- difícil
+- entiendo
+- envian
+- error
+- falla
+- fallando
+- fatal
+- fff
+- frustrante
+- horrible
+- imposible
+- inestable
+- insegura
+- intento
+- inutil
+- inútil
+- isltimamente
+- lenta
+- lento
+- mal
+- malisima
+- malo
+- molestando
+- molesto
+- no funciona
+- no sirve
+- nunca
+- peor
+- pesima
+- pesimo
+- pesos
+- pobre
+- podido
+- problema
+- pésimo
+- rato
+- robaron
+- siempre falla
+- sirven
+- tampoco
+- terrible
+- tratando
+neutrales:
+- aaa
+- aplica
+- asi asi
+- bbb
+- bbbb
+- bbj
+- bie
+- birn
+- ccc
+- ddd
+- estandar
+- estándar
+- exc
+- exce
+- ggg
+- hhh
+- hhhh
+- hhj
+- hjj
+- igual
+- jjj
+- jjjj
+- mas o menos
+- mmm
+- mmmm
+- más o menos
+- nada especial
+- nan
+- neutral
+- normal
+- ok
+- okey
+- oki
+- okn
+- omitido
+- promedio
+- regular
+- vvv
+- xxx
+- xxxx
+- xxxxx
+- 'yes'
+ofensivas:
+- mierda
+- maldita
+- maldito
+- carajo
+- joder
+- puta
+- puto
+- idiota
+- estupido
+- estúpido
+- imbecil
+- imbécil
+- pendejo
+- ladron
+- ladrón
+- ladrones
+- robar
+- estafa
+- estafadores
+- incompetente
+- incompetentes
+- basura
+- odio
+- odiar
+- asqueroso
+- asco
+- malditos
+- malditas
+- cagada
+- hp
+- gonorrea
+- culero
+- pinche
+- verga
+- coño
+- rateros
+- ratero
+- fraude
+- fraudulento
+intensificadores:
+  positivos:
+  - muy
+  - extremadamente
+  - totalmente
+  - completamente
+  - absolutamente
+  - demasiado
+  negativos:
+  - jamás
+  - jamas
+  - siempre
+  - nada
+neutrals:
+- genial

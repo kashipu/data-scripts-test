@@ -1,0 +1,141 @@
+# Palabras clave para análisis de sentimientos
+# Similar a categorias.yml pero para validación de sentimientos
+
+positivas:
+  - excelente
+  - perfecto
+  - genial
+  - bueno
+  - bien
+  - mejor
+  - rápido
+  - rápida
+  - fácil
+  - útil
+  - funciona
+  - práctico
+  - recomiendo
+  - gracias
+  - felicitaciones
+  - satisfecho
+  - contento
+  - me gusta
+  - agradezco
+  - fantástico
+  - increíble
+  - maravilloso
+  - super
+  - chevere
+  - bacano
+  - top
+  - amo
+  - encanta
+
+negativas:
+  - malo
+  - pésimo
+  - pesimo
+  - horrible
+  - terrible
+  - lento
+  - lenta
+  - difícil
+  - complicado
+  - no funciona
+  - error
+  - problema
+  - falla
+  - deficiente
+  - peor
+  - molesto
+  - frustrante
+  - decepcionante
+  - nunca
+  - siempre falla
+  - desastre
+  - inútil
+  - inutil
+  - no sirve
+  - basura
+  - fatal
+  - pobre
+  - deplorable
+
+neutrales:
+  - ok
+  - normal
+  - regular
+  - asi asi
+  - más o menos
+  - mas o menos
+  - neutral
+  - nada especial
+  - igual
+  - estándar
+  - estandar
+  - promedio
+
+ofensivas:
+  - mierda
+  - maldita
+  - maldito
+  - carajo
+  - joder
+  - puta
+  - puto
+  - idiota
+  - estupido
+  - estúpido
+  - imbecil
+  - imbécil
+  - pendejo
+  - ladron
+  - ladrón
+  - ladrones
+  - robar
+  - estafa
+  - estafadores
+  - incompetente
+  - incompetentes
+  - basura
+  - porquería
+  - porqueria
+  - odio
+  - odiar
+  - asqueroso
+  - asco
+  - malditos
+  - malditas
+  - cagada
+  - hp
+  - gonorrea
+  - culero
+  - pinche
+  - verga
+  - coño
+  - rateros
+  - ratero
+  - fraude
+  - fraudulento
+
+intensificadores:
+  positivos:
+    - muy
+    - super
+    - súper
+    - extremadamente
+    - totalmente
+    - completamente
+    - absolutamente
+    - demasiado
+
+  negativos:
+    - nunca
+    - jamás
+    - jamas
+    - siempre
+    - nada
+    - pésimo
+    - pesimo
+    - horrible
+    - terrible

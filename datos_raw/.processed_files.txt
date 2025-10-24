@@ -1,8 +1,0 @@
-data-cruda\Agosto\1 Base Agosto_BM_2025.xlsx|72821acb5013a27f47ac9556b8870609
-data-cruda\Agosto\1 Base Agosto_BV_2025.xlsx|70360f3de6817339651587df32ba19dd
-data-cruda\Julio\1 Base Julio_BM_2025.xlsx|836fcfebdcd06fa0bd7f41363facd1f0
-data-cruda\Julio\1 Base julio_BV_2025.xlsx|cfce18eaa5ee4c849eea0d924ca7ad68
-data-cruda\Junio\1 Base Junio_BM_2025.xlsx|3759bf3725eac8915c629ef23075618d
-data-cruda\Junio\1 Base Junio_BV_2025.xlsx|7a46e1b966af9dc943be2d2c910e95ac
-data-cruda\Septiembre\1 Base Sep_BM_2025.xlsx|cc52d0dffcdab1a96acd5b9e52ecd721
-data-cruda\Septiembre\1 Base Sep_BV_2025.xlsx|2eb883ad533cd55e2c914e221c2c619e
